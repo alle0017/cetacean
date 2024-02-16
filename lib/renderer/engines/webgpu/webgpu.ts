@@ -14,8 +14,8 @@ export default class WebGPU {
 
       static renderPassDescriptor: GPURenderPassDescriptor;
 
-      private static _config: Config = {
-            antialias: 4,
+      static _config: Config = {
+            antialias: 1,
             culling: true,
             clearColor: { r: 0, g: 0, b: 0, a: 0 },
             debug: true,
@@ -55,8 +55,8 @@ export default class WebGPU {
                   this.device = device;
       
                   this.device.addEventListener('uncapturederror', e =>{
-                        if( 'error' in e )
-                        Thread.error(`${e.error} not captured`);
+                        if( 'error' in e && e.error && typeof e.error == 'object' &&'message' in e.error )
+                        Thread.error(`${e.error.message}`);
                         else 
                         Thread.error('error not captured occurred while executing webgpu commands');
                   })
@@ -183,7 +183,7 @@ export default class WebGPU {
             );
       }
       createRenderPipeline( shader: ShaderMessage, layout: GPUVertexBufferLayout, ){
-            const module = WebGPU.device.createShaderModule({ code: shader.program })
+            const module = WebGPU.device.createShaderModule({ code: shader.vertex + shader.fragment })
             return WebGPU.device.createRenderPipeline({
                   vertex: {
                         entryPoint: shader.vertexEntry,

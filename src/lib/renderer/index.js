@@ -23,6 +23,28 @@ class Renderer {
         }
         return size;
     }
+    getEntry(fragment, vertex) {
+        const fragmentEntry = fragment.match(/@fragment[\s\b]+fn[\s\b]+[a-zA-Z0-9_]+[\s\b]*/);
+        const vertexEntry = vertex.match(/@vertex[\s\b]+fn[\s\b]+[a-zA-Z0-9_]+[\s\b]*/);
+        if (!fragmentEntry) {
+            console.error('no fragment entry point found in fragment shader');
+            return {
+                fragmentEntry: '',
+                vertexEntry: ''
+            };
+        }
+        if (!vertexEntry) {
+            console.error('no vertex entry point found in vertex shader');
+            return {
+                fragmentEntry: '',
+                vertexEntry: ''
+            };
+        }
+        return {
+            fragmentEntry: fragmentEntry[0].replace(/@fragment[\s\b]+fn[\s\b]+/, ''),
+            vertexEntry: vertexEntry[0].replace(/@vertex[\s\b]+fn[\s\b]+/, ''),
+        };
+    }
     flatUniforms(opt) {
         const flattened = [];
         for (const v of opt) {
@@ -40,14 +62,28 @@ class Renderer {
         Thread.post(Messages.START, null, this._tid);
     }
     create(opt) {
+        const { vertexEntry, fragmentEntry } = this.getEntry(opt.fragment, opt.vertex);
         let verticesCount = 0;
+        if (!vertexEntry || !fragmentEntry) {
+            console.error(`no entry point found, the object ${opt.id} is automatically discarded`);
+            return;
+        }
         if (opt.attributes[opt.verticesAttribute]) {
             verticesCount = opt.attributes[opt.verticesAttribute].data.length;
         }
         else {
             verticesCount = Object.values(opt.attributes)[0].data.length;
         }
-        Thread.post(Messages.NEW_ENTITY, Object.assign(Object.assign({}, opt), { verticesCount, uniforms: this.flatUniforms(opt.uniforms) }), this._tid);
+        Thread.post(Messages.NEW_ENTITY, Object.assign(Object.assign({}, opt), { vertexEntry,
+            fragmentEntry,
+            verticesCount, uniforms: this.flatUniforms(opt.uniforms) }), this._tid);
+    }
+    update(id, uniforms) {
+        console.log('update');
+        Thread.post(Messages.UPDATE_UNIFORMS, {
+            uniforms,
+            id,
+        }, this._tid);
     }
 }
 Renderer._id = 0;

@@ -41,7 +41,7 @@ class Thread {
             return;
         }
         const thread = new Worker(code, {
-            type: 'module'
+            type: 'module',
         });
         thread.onerror = (e) => {
             Thread.error(`error occurred while running thread ${id}`);

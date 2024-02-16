@@ -2,7 +2,8 @@ import Thread from "../worker.js";
 import Engine from "./engines/engine.js";
 import WebGPUEngine from "./engines/webgpu/index.js";
 import { Messages } from "./enums.js";
-import { Drawable, ShaderMessage } from "./types.js";
+import { Drawable, ShaderMessage, UniformDataDescriptor } from "./types.js";
+
 
 class RendererWorker {
       static engine: Engine;
@@ -26,6 +27,12 @@ class RendererWorker {
             Thread.listen( Messages.START, ()=>{
                   RendererWorker.draw();
             });
+            Thread.listen( Messages.UPDATE_UNIFORMS, ( e: { 
+                  id: string, 
+                  uniforms: { binding: number, group: number, name: string, data: number[] }[]
+            })=>{
+                  RendererWorker.update( e.id, e.uniforms );
+            })
       }
       static draw(){
             const render = ()=>{
@@ -33,6 +40,20 @@ class RendererWorker {
                   RendererWorker.frames = requestAnimationFrame(render);
             }
             render();
+      }
+      static update( id: string, uniforms: { binding: number, group: number, name: string, data: number[] }[] ){
+            if( !this.entities[id] ){
+                  Thread.error( 'No entities found with id ' + id );
+                  return;
+            }
+            for( const o of uniforms ){
+                  this.engine.write(
+                        this.entities[id].uBuffer,
+                        this.entities[id].uniformMap[o.group][o.binding][o.name],
+                        o.data,
+                        (this.entities[id].uniforms[o.group][o.binding] as Record<string, UniformDataDescriptor> )[o.name].type
+                  );
+            }
       }
 }
 RendererWorker.boot();

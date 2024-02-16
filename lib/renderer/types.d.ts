@@ -44,9 +44,8 @@ export type ShaderDescriptor = {
       verticesAttribute: string,
       attributes: Record<string, AttributeDescriptor>,
       uniforms: UniformDescriptor[],
-      program: string,
-      vertexEntry: string,
-      fragmentEntry: string,
+      vertex: string,
+      fragment: string,
       topology?: GPUPrimitiveTopology,
       index?: number[],
 }
@@ -70,7 +69,8 @@ export type ShaderMessage = {
       attributes: Record<string, AttributeDescriptor>,
       /**binding and group used as indices */
       uniforms: Uniform,
-      program: string,
+      vertex: string,
+      fragment: string,
       vertexEntry: string,
       fragmentEntry: string,
       topology?: GPUPrimitiveTopology,
@@ -114,4 +114,5 @@ export type Drawable = {
       draw: (any)=>void,
       uBuffer: GPUBuffer,
       uniformMap: Record<string, number>[][],
+      uniforms: UniformData[][],
 }

@@ -11,7 +11,7 @@ export default class WebGPUEngine extends Engine {
         if (!this.gpu) {
             const gpu = await WebGPU.get(cvs);
             if (!gpu) {
-                Thread.error(' cannot get WebGPU instance');
+                WebGPU._config.debug && Thread.error(' cannot get WebGPU instance');
                 return;
             }
             this.gpu = gpu;
@@ -150,7 +150,7 @@ export default class WebGPUEngine extends Engine {
                 pass.drawIndexed(nOfVertices);
             };
         }
-        Thread.log('no bind group found');
+        WebGPU._config.debug && Thread.log('no bind group found');
         return (pass) => {
             pass.setPipeline(pipeline);
             pass.setIndexBuffer(indexBuffer, 'uint16');
@@ -183,6 +183,7 @@ export default class WebGPUEngine extends Engine {
             draw,
             uBuffer,
             uniformMap,
+            uniforms: opt.uniforms.entries,
         };
     }
     draw(objects) {
@@ -196,5 +197,8 @@ export default class WebGPUEngine extends Engine {
         }
         pass.end();
         WebGPU.device.queue.submit([encoder.finish()]);
+    }
+    write(buffer, offset, data, type) {
+        WebGPUEngine.gpu.writeBuffer(buffer, data, type, offset);
     }
 }

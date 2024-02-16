@@ -76,7 +76,7 @@ export default class Thread {
                   return;
             }
             const thread = new Worker(code, {
-                  type: 'module'
+                  type: 'module',
             });
             thread.onerror = (e)=>{
                   Thread.error(`error occurred while running thread ${id}`);
@@ -196,7 +196,7 @@ export default class Thread {
                   Thread.error('you have to specify the thread if you are using Thread.post from window');
             }
       }
-      static log( message: string ){
+      static log( message: any ){
             if( Thread.isChildThread() ){
                   self.postMessage({
                         type: 'log',
@@ -206,7 +206,7 @@ export default class Thread {
                   console.log(message);
             }
       }
-      static error( message: string ){
+      static error( message: any ){
             if( Thread.isChildThread() ){
                   self.postMessage({
                         type: 'error',

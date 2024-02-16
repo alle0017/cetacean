@@ -20,6 +20,9 @@ class RendererWorker {
         Thread.listen(Messages.START, () => {
             RendererWorker.draw();
         });
+        Thread.listen(Messages.UPDATE_UNIFORMS, (e) => {
+            RendererWorker.update(e.id, e.uniforms);
+        });
     }
     static draw() {
         const render = () => {
@@ -27,6 +30,15 @@ class RendererWorker {
             RendererWorker.frames = requestAnimationFrame(render);
         };
         render();
+    }
+    static update(id, uniforms) {
+        if (!this.entities[id]) {
+            Thread.error('No entities found with id ' + id);
+            return;
+        }
+        for (const o of uniforms) {
+            this.engine.write(this.entities[id].uBuffer, this.entities[id].uniformMap[o.group][o.binding][o.name], o.data, this.entities[id].uniforms[o.group][o.binding][o.name].type);
+        }
     }
 }
 RendererWorker.entities = {};

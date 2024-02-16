@@ -26,8 +26,8 @@ class WebGPU {
             }
             this.device = device;
             this.device.addEventListener('uncapturederror', e => {
-                if ('error' in e)
-                    Thread.error(`${e.error} not captured`);
+                if ('error' in e && e.error && typeof e.error == 'object' && 'message' in e.error)
+                    Thread.error(`${e.error.message}`);
                 else
                     Thread.error('error not captured occurred while executing webgpu commands');
             });
@@ -140,7 +140,7 @@ class WebGPU {
         WebGPU.device.queue.writeBuffer(buffer, offset, new types[type].constructor(data), 0, data.length);
     }
     createRenderPipeline(shader, layout) {
-        const module = WebGPU.device.createShaderModule({ code: shader.program });
+        const module = WebGPU.device.createShaderModule({ code: shader.vertex + shader.fragment });
         return WebGPU.device.createRenderPipeline({
             vertex: {
                 entryPoint: shader.vertexEntry,
@@ -191,7 +191,7 @@ class WebGPU {
     }
 }
 WebGPU._config = {
-    antialias: 4,
+    antialias: 1,
     culling: true,
     clearColor: { r: 0, g: 0, b: 0, a: 0 },
     debug: true,

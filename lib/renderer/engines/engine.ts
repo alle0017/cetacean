@@ -1,5 +1,5 @@
 import { types } from "../enums.js";
-import type { AttributeDescriptor, TypedArray, Drawable, ShaderMessage } from "../types.d.ts";
+import type { AttributeDescriptor, TypedArray, Drawable, ShaderMessage, GPUType, } from "../types.d.ts";
 
 export default abstract class Engine {
       /**bind two arrays by mixing them and returns the offset of the next attribute to mix */
@@ -46,4 +46,5 @@ export default abstract class Engine {
       }
       abstract  draw( objects: Drawable[] ): void;
       abstract create( opt: ShaderMessage ): Drawable;
+      abstract write( buffer: GPUBuffer, offset: number, data: number[], type: GPUType ): void;
 }

@@ -2,7 +2,7 @@ import Engine from "../engine.js";
 import WebGPU from "./webgpu.js";
 import Thread from "../../../worker.js";
 import { types, Topology } from "../../enums.js";
-import type { ShaderMessage, AttributeDescriptor, UniformData, UniformDataDescriptor, Uniform, Drawable } from "../../types.d.ts";
+import type { ShaderMessage, AttributeDescriptor, UniformData, UniformDataDescriptor, Uniform, Drawable, GPUType } from "../../types.d.ts";
 
 export default class WebGPUEngine extends Engine {
       /**
@@ -17,7 +17,7 @@ export default class WebGPUEngine extends Engine {
             if( !this.gpu ){
                   const gpu = await WebGPU.get( cvs );
                   if( !gpu ){
-                        Thread.error(' cannot get WebGPU instance' );
+                        WebGPU._config.debug && Thread.error(' cannot get WebGPU instance' );
                         return;
                   }
                   this.gpu = gpu;
@@ -114,7 +114,7 @@ export default class WebGPUEngine extends Engine {
                   type: "i32",
                   length: uniforms.size,
             });
-            const map: Record<string, number>[][] = [];
+            const map: Record<string,number>[][] = [];
             const bindGroups: GPUBindGroup[] = [];
             let offset = 0;
 
@@ -160,6 +160,7 @@ export default class WebGPUEngine extends Engine {
                   buffer, 
                   map,
                   bindGroups,
+
             }      
       }
       private createRenderFunction( pipeline: GPURenderPipeline, vBuffer: GPUBuffer, indexBuffer: GPUBuffer, bindGroups: GPUBindGroup[], nOfVertices: number ){
@@ -177,7 +178,7 @@ export default class WebGPUEngine extends Engine {
                   }
             }
 
-            Thread.log('no bind group found');
+            WebGPU._config.debug && Thread.log('no bind group found');
 
             return ( pass: GPURenderPassEncoder )=>{
                   pass.setPipeline( pipeline );
@@ -211,12 +212,13 @@ export default class WebGPUEngine extends Engine {
 
             // generate draw function
             const draw = this.createRenderFunction( pipeline, vBuffer, indexBuffer, bindGroups, numOfVertices );
-
+            
             // return drawable
             return {
                   draw,
                   uBuffer,
                   uniformMap,
+                  uniforms: opt.uniforms.entries,
             }
       }
       draw( objects: Drawable[] ){
@@ -233,5 +235,13 @@ export default class WebGPUEngine extends Engine {
             }
             pass.end()
             WebGPU.device.queue.submit( [encoder.finish()] );
+      }
+      write( buffer: GPUBuffer, offset: number, data: number[], type: GPUType ){
+            WebGPUEngine.gpu.writeBuffer(
+                  buffer, 
+                  data,
+                  type,
+                  offset
+            )
       }
 }

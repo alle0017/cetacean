@@ -29,6 +29,28 @@ export default class Renderer {
             }
             return size;
       }
+      private getEntry( fragment: string, vertex: string ){
+            const fragmentEntry = fragment.match(/@fragment[\s\b]+fn[\s\b]+[a-zA-Z0-9_]+[\s\b]*/);
+            const vertexEntry = vertex.match(/@vertex[\s\b]+fn[\s\b]+[a-zA-Z0-9_]+[\s\b]*/);
+            if( !fragmentEntry ){
+                  console.error( 'no fragment entry point found in fragment shader');
+                  return {
+                        fragmentEntry: '',
+                        vertexEntry: ''
+                  }
+            }
+            if( !vertexEntry ){
+                  console.error( 'no vertex entry point found in vertex shader');
+                  return {
+                        fragmentEntry: '',
+                        vertexEntry: ''
+                  }
+            }
+            return {
+                  fragmentEntry: fragmentEntry[0].replace(/@fragment[\s\b]+fn[\s\b]+/, ''),
+                  vertexEntry: vertexEntry[0].replace(/@vertex[\s\b]+fn[\s\b]+/, ''),
+            }
+      }
       private flatUniforms( opt: UniformDescriptor[] ): Uniform {
             const flattened: UniformData[][] = [];
             for( const v of opt ){
@@ -47,7 +69,13 @@ export default class Renderer {
       }
 
       create( opt: ShaderDescriptor ){
+            const { vertexEntry, fragmentEntry } = this.getEntry( opt.fragment, opt.vertex );
             let verticesCount = 0;
+
+            if( !vertexEntry || !fragmentEntry ){
+                  console.error( `no entry point found, the object ${opt.id} is automatically discarded` );
+                  return;
+            }
 
             if( opt.attributes[opt.verticesAttribute] ){
                   verticesCount = opt.attributes[opt.verticesAttribute].data.length;
@@ -57,9 +85,18 @@ export default class Renderer {
 
             Thread.post( Messages.NEW_ENTITY, {
                   ...opt,
+                  vertexEntry,
+                  fragmentEntry,
                   verticesCount,
                   uniforms: this.flatUniforms(opt.uniforms),
             }, this._tid );
       }
-
+      update( id: string, uniforms: { binding: number, group: number, data: number[], name: string }[] ){
+            console.log( 'update' )
+            Thread.post( Messages.UPDATE_UNIFORMS, {
+                  uniforms,
+                  id,
+            }, this._tid );
+      }
 }
+

@@ -3,6 +3,7 @@ export const Messages = Object.freeze({
       READY: 're4D7y',
       NEW_ENTITY: 'n3W_en7tY',
       START: 's74R_?7!',
+      UPDATE_UNIFORMS: 'uPda73_uNif',
 })
 export const types = Object.freeze({
       i32: {
