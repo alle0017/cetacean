@@ -16,8 +16,9 @@ class Thread {
     }
     static expose(message, transferable, id) {
         const exposed = [];
-        for (const v of Object.values(transferable)) {
-            exposed.push(v);
+        const values = Object.values(transferable);
+        for (let i = 0; i < values.length; i++) {
+            exposed.push(values[i]);
         }
         if (Thread.isChildThread()) {
             self.postMessage({

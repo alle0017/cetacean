@@ -6,7 +6,7 @@ class Renderer {
         this._tid = 'rendering thread' + Renderer._id++;
         this.cvs = document.createElement('canvas');
         root.appendChild(this.cvs);
-        Thread.spawn(this._tid, './src/lib/renderer/worker.js');
+        Thread.spawn(this._tid, new URL('./worker.js', import.meta.url));
         Thread.expose(Messages.CANVAS_PASSED, { cvs: this.cvs.transferControlToOffscreen() }, this._tid);
         Thread.wait(Messages.READY, this._tid);
     }
@@ -16,8 +16,9 @@ class Renderer {
             for (let j = 0; j < uniforms[i].length; j++) {
                 if (!uniforms[i][j] || typeof uniforms[i][j] == 'string' || uniforms[i][j] instanceof ImageBitmap)
                     continue;
-                for (const v of Object.values(uniforms[i][j])) {
-                    size += v.data.length * types[v.type].constructor.BYTES_PER_ELEMENT;
+                const values = Object.values(uniforms[i][j]);
+                for (let i = 0; i < values.length; i++) {
+                    size += values[i].data.length * types[values[i].type].constructor.BYTES_PER_ELEMENT;
                 }
             }
         }
@@ -47,10 +48,10 @@ class Renderer {
     }
     flatUniforms(opt) {
         const flattened = [];
-        for (const v of opt) {
-            if (!flattened[v.group])
-                flattened[v.group] = [];
-            flattened[v.group][v.binding] = v.data;
+        for (let i = 0; i < opt.length; i++) {
+            if (!flattened[opt[i].group])
+                flattened[opt[i].group] = [];
+            flattened[opt[i].group][opt[i].binding] = opt[i].data;
         }
         const size = this.getUniformBufferSize(flattened);
         return {

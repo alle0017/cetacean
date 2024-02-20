@@ -53,8 +53,9 @@ export default class Thread {
       }
       static expose( message: string, transferable: Record<string,Transferable>, id?: string ){
             const exposed: Transferable[] = [];
-            for( const v of Object.values( transferable ) ){
-                  exposed.push( v ); 
+            const values = Object.values( transferable );
+            for( let i = 0; i < values.length; i++ ){
+                  exposed.push( values[i] ); 
             }
             if( Thread.isChildThread() ){
                   self.postMessage({

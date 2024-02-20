@@ -4,19 +4,21 @@ export default class Engine {
     mixArrays(mappedRange, attributes, stride) {
         const arrays = {};
         let offset = 0;
-        for (const v of Object.values(attributes)) {
-            if (!arrays[types[v.type].atomic]) {
-                arrays[types[v.type].atomic] = new types[v.type].constructor(mappedRange);
+        const values = Object.values(attributes);
+        for (let x = 0; x < values.length; x++) {
+            if (!arrays[types[values[x].type].atomic]) {
+                arrays[types[values[x].type].atomic] = new types[values[x].type].constructor(mappedRange);
             }
-            for (let i = 0; i < v.data.length / types[v.type].components; i++) {
-                const next = types[v.type].padding;
+            for (let i = 0; i < values[x].data.length / types[values[x].type].components; i++) {
+                const next = types[values[x].type].padding;
                 const start = i * stride + offset;
-                const end = start + next * types[v.type].components;
+                const end = start + next * types[values[x].type].components;
                 for (let j = start; j < end; j += next) {
-                    arrays[types[v.type].atomic][j] = v.data[(j - start) / next + i * types[v.type].components];
+                    arrays[types[values[x].type].atomic][j] =
+                        values[x].data[(j - start) / next + i * types[values[x].type].components];
                 }
             }
-            offset += types[v.type].components;
+            offset += types[values[x].type].components;
         }
     }
     getVertexCount(type) {

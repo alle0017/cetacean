@@ -36,8 +36,12 @@ class RendererWorker {
             Thread.error('No entities found with id ' + id);
             return;
         }
-        for (const o of uniforms) {
-            this.engine.write(this.entities[id].uBuffer, this.entities[id].uniformMap[o.group][o.binding][o.name], o.data, this.entities[id].uniforms[o.group][o.binding][o.name].type);
+        for (let i = 0; i < uniforms.length; i++) {
+            const entries = Object.entries(uniforms[i].data);
+            for (let j = 0; j < entries.length; j++) {
+                Thread.log(this.entities[id].uniformMap);
+                this.engine.write(this.entities[id].uBuffer, this.entities[id].uniformMap[uniforms[i].group][uniforms[i].binding][entries[j][0]], entries[j][1], this.entities[id].uniforms[uniforms[i].group][uniforms[i].binding][entries[j][0]].type);
+            }
         }
     }
 }

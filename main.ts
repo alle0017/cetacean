@@ -36,8 +36,17 @@ r.create({
                   binding: 0,
                   group: 0,
                   data: 'sampler',
-            }, {
+            },{
                   binding: 1,
+                  group: 0,
+                  data: {
+                        color: {
+                              type: 'f32x4',
+                              data: [0,0,0,1],
+                        }
+                  },
+            },{
+                  binding: 2,
                   group: 0,
                   data: bitmap,
             }],
@@ -63,12 +72,20 @@ r.create({
             fragment: /*wgsl*/`
 
             @group(0) @binding(0) var samp: sampler;
-            @group(0) @binding(1) var text: texture_2d<f32>;
+            @group(0) @binding(1) var<uniform> color: vec4f;
+            @group(0) @binding(2) var text: texture_2d<f32>;
                   @fragment
                   fn fragment_shader( v: Varyings ) -> @location(0) vec4<f32> {
-                        return textureSample( text, samp, v.coords );
+                        return textureSample( text, samp, v.coords ) + color;
                   }
             `,
 });
 r.render();
+setInterval(() => r.update('triangle', [{
+      group: 0,
+      binding: 1,
+      data: {
+            color: [0,1,0,0]
+      }
+}]), 1000 )
 }

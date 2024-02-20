@@ -5,12 +5,14 @@ import type { Config, TextureOptions, BufferOptions, ShaderMessage, GPUType } fr
 export default class WebGPU {
       private static instance: WebGPU;
 
-      static device: GPUDevice;
       private static canvasFormat: GPUTextureFormat;
       private static ctx: GPUCanvasContext;
 
       private static renderTarget: GPUTexture;
       private static depthTexture: GPUTexture;
+
+      static device: GPUDevice;
+      
 
       static renderPassDescriptor: GPURenderPassDescriptor;
 
@@ -97,6 +99,7 @@ export default class WebGPU {
 
       
       constructor( public cvs: OffscreenCanvas ){}
+      
       private static createRenderPassDescriptor(): GPURenderPassDescriptor{
             const description: GPURenderPassDescriptor = {
                   colorAttachments: [{

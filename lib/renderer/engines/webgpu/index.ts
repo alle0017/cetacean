@@ -31,15 +31,15 @@ export default class WebGPUEngine extends Engine {
 
             let offset = 0;
             let size = 0;
-
-            for( const v of Object.values( attributes ) ){
+            const values = Object.values( attributes );
+            for( let i = 0; i < values.length; i++ ){
                   attribs.push({
-                        shaderLocation: v.location,
+                        shaderLocation: values[i].location,
                         offset: offset,
-                        format: types[v.type].type as GPUVertexFormat,
+                        format: types[values[i].type].type as GPUVertexFormat,
                   });
-                  offset+= types[v.type].components*BYTES_PER_SLOT;
-                  size+= v.data.length*BYTES_PER_SLOT;
+                  offset+= types[values[i].type].components*BYTES_PER_SLOT;
+                  size+= values[i].data.length*BYTES_PER_SLOT;
             }
             return {
                   size,
@@ -86,15 +86,16 @@ export default class WebGPUEngine extends Engine {
       }
       private writeUniformBuffer( buffer: GPUBuffer, data: Record<string, UniformDataDescriptor>, offset: number ){
             const map: Record<string, number> = {};
-            for( const [k,d] of Object.entries( data ) ){
+            const entries = Object.entries( data );
+            for( let i = 0; i < entries.length; i++ ){
                   WebGPUEngine.gpu.writeBuffer(
                         buffer, 
-                        d.data,
-                        d.type,
+                        entries[i][1].data,
+                        entries[i][1].type,
                         offset
                   )
-                  map[k] = offset;
-                  offset += d.data.length*types[d.type].constructor.BYTES_PER_ELEMENT;
+                  map[entries[i][0]] = offset;
+                  offset += entries[i][1].data.length*types[entries[i][1].type].constructor.BYTES_PER_ELEMENT;
             }
             return {
                   offset, 
@@ -103,8 +104,9 @@ export default class WebGPUEngine extends Engine {
       }
       private getUniformBindingSize( data: Record<string, UniformDataDescriptor> ){
             let size = 0;
-            for( const v of Object.values( data ) ){
-                  size += v.data.length*types[v.type].constructor.BYTES_PER_ELEMENT;
+            const values = Object.values( data );
+            for( let i = 0; i < values.length; i++  ){
+                  size += values[i].data.length*types[values[i].type].constructor.BYTES_PER_ELEMENT;
             }
             return size;
       }
@@ -146,7 +148,7 @@ export default class WebGPUEngine extends Engine {
                               })
                               const tmp = this.writeUniformBuffer( buffer, (uniforms.entries[i][j] as Record<string, UniformDataDescriptor>), offset);
                               offset = tmp.offset;
-                              map[i].push(tmp.map);
+                              map[i][j] = tmp.map;
                         }
                   }
                   bindGroups.push(
