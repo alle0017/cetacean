@@ -49,7 +49,10 @@ export class ViewDelegate {
             // Calculate and assign a new perspective matrix based on camera properties
             this.perspectiveMatrix = Matrix.perspective(this._fieldOfView, this._resolution, this._near, this._far);
       }
-      getMatrices( opt?: TransformOpt ): DrawMatrices {
+      getMatrices(){
+            return this.perspectiveMatrix
+      }  
+      /*getMatrices( opt?: TransformOpt ): DrawMatrices {
             let transformationMatrix = Matrix.IDENTITY_4X4;
             
             // If no drawing options provided, return the identity matrix
@@ -74,5 +77,5 @@ export class ViewDelegate {
                   transform: transformationMatrix,
                   perspective: this.perspectiveMatrix
             };
-      }  
+      }  */
 }

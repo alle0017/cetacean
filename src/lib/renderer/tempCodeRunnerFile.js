@@ -1,2 +1,3 @@
 "use strict";
-[a - zA - Z0 - 9];
+deltaSize = 3;
+console.log([0].fill(0, 0, deltaSize));

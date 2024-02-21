@@ -1,4 +1,4 @@
-namespace Vec {
+export namespace Vec {
       export const modulus = ( vec: number[] ): number => Math.sqrt( vec.reduce( ( p: number,c: number ) => p + c ) );
       export const normalize = ( vec: number[] ): number[] => {
             const cpy = [...vec];
@@ -37,4 +37,3 @@ namespace Vec {
             return reflection.map( (v: number, i: number) => vec[i] - 2*v )
       }
 }
-export default Vec;

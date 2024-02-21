@@ -165,6 +165,7 @@ export default class WebGPUEngine extends Engine {
      * create new Drawable entity
      */
     create(opt) {
+        Thread.log('ciao');
         // initialize attributes-related data
         const { buffer: vBuffer, descriptor } = this.createVertexBuffer(opt.attributes);
         //creating a new rendering pipeline

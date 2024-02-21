@@ -1,11 +1,16 @@
-import Renderer from "../../renderer/index.js";
+import { Game } from "../game.js";
+import { ElementModel } from "./elementModel.js";
+
 import * as Mat from '../../math/matrix/index.js';
-import Game from "../index.js";
+
 import { Axis } from "../../enum.js";
-import type { Point3D } from "../../types.js";
+import { ShaderDescriptor } from "lib/renderer/types.js";
 
-export default class Node {
 
+export class Element implements ElementModel {
+
+      static readonly game: Game = Game.new();
+      
       private transformation: number[] = Mat.IDENTITY_4X4;
       private angles: Float32Array = new Float32Array([0,0,0]);
       
@@ -66,8 +71,12 @@ export default class Node {
             this.transformation = Mat.compose( this.transformation, 4, Mat.rotation( value, Axis.Z ) );
       }
 
-      constructor( game: Game ){
+      constructor( game: Game, shader?: ShaderDescriptor ){
+            if( shader ){
 
+            }
       }
-
+      emitEvent( signal: string ): void {
+            Element.game.events.emit( signal );
+      }
 }

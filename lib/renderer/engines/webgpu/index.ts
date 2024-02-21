@@ -119,7 +119,6 @@ export default class WebGPUEngine extends Engine {
             const map: Record<string,number>[][] = [];
             const bindGroups: GPUBindGroup[] = [];
             let offset = 0;
-
             for( let i = 0; i < uniforms.entries.length; i++ ){
                   const resources: GPUBindGroupEntry[] = [];
                   map.push([]);
@@ -193,6 +192,9 @@ export default class WebGPUEngine extends Engine {
        * create new Drawable entity
        */
       create( opt: ShaderMessage ){
+
+            Thread.log('ciao')
+            
             // initialize attributes-related data
             const { buffer: vBuffer, descriptor } = this.createVertexBuffer( opt.attributes );
             //creating a new rendering pipeline

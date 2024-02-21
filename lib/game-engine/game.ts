@@ -1,18 +1,20 @@
 import * as Mat from '../math/matrix/index.js';
-import Renderer from '../renderer/index.js';
+import Renderer from '../renderer/renderer.js';
+import EventSystem from './events.js';
 
-export default class Game {
+export class Game {
 
       private static game: Game;
 
-      private renderer: Renderer;
-
-      view: Mat.ViewDelegate;
+      readonly events: EventSystem;
+      readonly renderer: Renderer;
+      readonly view: Mat.ViewDelegate;
 
       /** @hideconstructor */
       constructor(){
             this.renderer = new Renderer();
             this.view = new Mat.ViewDelegate( this.getResolution() );
+            this.events = new EventSystem();
       }
       /** get new instance of game class */
       static new(){
