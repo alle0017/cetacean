@@ -106,21 +106,40 @@ let Renderer = Renderer_1 = class Renderer {
             return;
         }
         if (opt.attributes[opt.verticesAttribute]) {
-            verticesCount = opt.attributes[opt.verticesAttribute].data.length;
+            verticesCount = opt.attributes[opt.verticesAttribute].data.length / types[opt.attributes[opt.verticesAttribute].type].components;
         }
         else {
-            verticesCount = Object.values(opt.attributes)[0].data.length;
+            verticesCount = Object.values(opt.attributes)[0].data.length / types[opt.attributes[opt.verticesAttribute].type].components;
         }
         Thread.post(Messages.NEW_ENTITY, Object.assign(Object.assign({}, opt), { vertexEntry,
             fragmentEntry,
             verticesCount, uniforms: this.flatUniforms(opt.uniforms) }), this._tid);
     }
+    /**
+     * save entity with specified id for later use after remove ( @see remove )
+     */
+    save(id) {
+        Thread.post(Messages.SAVE, {
+            id
+        }, this._tid);
+    }
+    loadSavedEntities(id) {
+        Thread.post(Messages.LOAD_SAVED, {
+            id
+        }, this._tid);
+    }
     update(id, uniforms) {
-        console.log('update');
         Thread.post(Messages.UPDATE_UNIFORMS, {
             uniforms,
             id,
         }, this._tid);
+    }
+    /**
+     * remove all entities actually rendered
+     * they need to be re-created to be rendered again
+     */
+    removeAll() {
+        Thread.post(Messages.DELETE_ALL, null, this._tid);
     }
     changeRoot(newRoot) {
         this.root = newRoot;

@@ -4,79 +4,75 @@ import { ElementModel } from "./elementModel.js";
 import * as Mat from '../../math/matrix/index.js';
 
 import { Axis } from "../../enum.js";
-import { ShaderDescriptor } from "lib/renderer/types.js";
+import { std } from "../../renderer/index.js";
 
+import type { ShapeDescriptor } from "../../types.d.ts";
+import type { Color } from '../../renderer/types.d.ts';
 
-export class Element implements ElementModel {
+export class Element extends ElementModel {
 
-      static readonly game: Game = Game.new();
+      private static readonly elementID: string = 'basic-element';
+
+      private static lastUsedKey: number = 0;
       
-      private transformation: number[] = Mat.IDENTITY_4X4;
-      private angles: Float32Array = new Float32Array([0,0,0]);
-      
-      get x(): number { return this.transformation[12]; }
-      set x(value: number) {
-            if( this.transformation[12] == value )
-                  return;
-            this.transformation = Mat.compose( this.transformation, 4, Mat.translate({
-                  x: value,
-                  y: 0,
-                  z: 0
-            }))
-      }
+      private lightDirection: [number, number, number] = [1, 8, -10];
 
-      get y(): number { return this.transformation[13]; }
-      set y(value: number) {
-            if( this.transformation[13] == value )
-                  return;
-            this.transformation = Mat.compose( this.transformation, 4, Mat.translate({
-                  x: 0,
-                  y: value,
-                  z: 0
-            }))
-      }
+      constructor( shape: ShapeDescriptor, color: number[] | Color ){
 
-      get z(): number { return this.transformation[14]; }
-      set z(value: number) {
-            if( this.transformation[14] == value )
-                  return;
-            this.transformation = Mat.compose( this.transformation, 4, Mat.translate({
-                  x: 0,
-                  y: 0,
-                  z: value
-            }))
-      }
+            super( `${Element.elementID}${Element.lastUsedKey++}` );
 
-      get xAngle(){ return 0 }
-      set xAngle(value: number){
-            if( this.angles[0] === value )
-                  return;
-            this.angles[0] = value;
-            this.transformation = Mat.compose( this.transformation, 4, Mat.rotation( value, Axis.X ) );
-      }
-
-      get yAngle(){ return 0 }
-      set yAngle(value: number){
-            if( this.angles[1] === value )
-                  return;
-            this.angles[1] = value;
-            this.transformation = Mat.compose( this.transformation, 4, Mat.rotation( value, Axis.Y ) );
-      }
-
-      get zAngle(){ return 0 }
-      set zAngle(value: number){
-            if( this.angles[2] === value )
-                  return;
-            this.angles[2] = value;
-            this.transformation = Mat.compose( this.transformation, 4, Mat.rotation( value, Axis.Z ) );
-      }
-
-      constructor( game: Game, shader?: ShaderDescriptor ){
-            if( shader ){
-
+            if( !( color instanceof Array ) ){
+                  let colors: number[] = [];
+                  for( let i = 0; i < shape.vertices.length/3; i++ )
+                        colors.push( color.r, color.g, color.b, color.a );
+                  color = colors;
             }
-      }
-      emitEvent( signal: string ): void {
-            Element.game.events.emit( signal );
+            Element.game.renderer.create({
+                  id: this.id,
+                  fragment: std.lightFragment,
+                  vertex: std.lightVertex,
+                  verticesAttribute: "position",
+                  attributes: {
+                        position: { 
+                              data: shape.vertices,
+                              type: 'f32x4',
+                              location: 0,
+                        },
+                        color: {
+                              data: color,
+                              type: 'f32x4',
+                              location: 1,
+                        },
+                        normal: {
+                              data: shape.normals,
+                              type: 'f32x3',
+                              location: 2,
+                        }
+                  },
+                  uniforms: [{
+                        group: 0,
+                        binding: 0,
+                        data: {
+                              perspective: {
+                                    data: Mat.IDENTITY_4X4,
+                                    type: 'f32'
+                              },
+                              transformation: {
+                                    data: this.transformation,
+                                    type: 'f32'
+                              }
+                        }
+                  }, {
+                        group: 0,
+                        binding: 1,
+                        data: {
+                              light_direction: {
+                                    data: [...this.lightDirection, 1],
+                                    type: 'f32'
+                              },
+                        } 
+                  }],
+                  index: shape.indices
+            })
       }
 }

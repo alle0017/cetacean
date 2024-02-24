@@ -46,3 +46,8 @@ export type DrawMatrices = {
       perspective: number[],
 }
 
+export type ShapeDescriptor = {
+      vertices: number[],
+      normals: number[],
+      indices?: number[],
+}

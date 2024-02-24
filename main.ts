@@ -1,8 +1,23 @@
 import Renderer from "./lib/renderer/renderer.js";
 import { std } from './lib/renderer/index.js';
 import * as Mat from './lib/math/matrix/index.js'
+import { Game, Scene, Element, Sprite2D, Shapes } from './lib/index.js';
 
+class MyScene extends Scene {
+      constructor( game: Game ){
+            super(game);
+            new Sprite2D('./icon.png')
+      } 
+}
 
+const game = Game.new();
+
+game.scene( MyScene, 'my-scene' );
+
+game.changeScene('my-scene');
+
+//game.changeScene('my-scene-2');
+/*
 const r = new Renderer();
 const view = new Mat.ViewDelegate(r.cvs.width/r.cvs.height);
 r.create({
@@ -56,3 +71,4 @@ r.create({
             fragment: std.basicFragment,
 });
 r.render();
+*/

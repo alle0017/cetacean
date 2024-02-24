@@ -1,7 +1,7 @@
 import Engine from "../engine.js";
 import WebGPU from "./webgpu.js";
 import Thread from "../../../worker.js";
-import { types, Topology } from "../../enums.js";
+import { types, } from "../../enums.js";
 export default class WebGPUEngine extends Engine {
     /**
      * returns new instance of the WebGPUEngine if can be created.\
@@ -165,23 +165,21 @@ export default class WebGPUEngine extends Engine {
      * create new Drawable entity
      */
     create(opt) {
-        Thread.log('ciao');
         // initialize attributes-related data
         const { buffer: vBuffer, descriptor } = this.createVertexBuffer(opt.attributes);
         //creating a new rendering pipeline
         const pipeline = WebGPUEngine.gpu.createRenderPipeline(opt, descriptor);
-        // get the number of vertices
-        const numOfVertices = opt.verticesCount / this.getVertexCount(opt.topology || Topology.triangle);
         // create bind group and unify uniforms
         const { buffer: uBuffer, bindGroups, map: uniformMap } = this.createUniforms(opt.uniforms, pipeline);
+        opt.index || (opt.index = this.createIndexArray(opt.verticesCount));
         const indexBuffer = WebGPUEngine.gpu.createBuffer({
             label: 'index buffer',
-            data: opt.index || this.createIndexArray(numOfVertices),
+            data: opt.index,
             usage: 'index',
             type: 'i16x2',
         });
         // generate draw function
-        const draw = this.createRenderFunction(pipeline, vBuffer, indexBuffer, bindGroups, numOfVertices);
+        const draw = this.createRenderFunction(pipeline, vBuffer, indexBuffer, bindGroups, opt.index.length);
         // return drawable
         return {
             draw,

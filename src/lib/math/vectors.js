@@ -1,4 +1,4 @@
-var Vec;
+export var Vec;
 (function (Vec) {
     Vec.modulus = (vec) => Math.sqrt(vec.reduce((p, c) => p + c));
     Vec.normalize = (vec) => {
@@ -38,4 +38,3 @@ var Vec;
         return reflection.map((v, i) => vec[i] - 2 * v);
     };
 })(Vec || (Vec = {}));
-export default Vec;

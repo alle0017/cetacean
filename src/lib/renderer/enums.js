@@ -4,6 +4,9 @@ export const Messages = Object.freeze({
     NEW_ENTITY: 'n3W_en7tY',
     START: 's74R_?7!',
     UPDATE_UNIFORMS: 'uPda73_uNif',
+    DELETE_ALL: 'de_a#L',
+    SAVE: 's4vE!',
+    LOAD_SAVED: '-ld_sD7',
 });
 export const types = Object.freeze({
     i32: {

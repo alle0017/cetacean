@@ -16,9 +16,11 @@ const getDeviceOffset = async ()=>{
 export default class Renderer {
       private static _id = 0;
       private static _uPadding = '__u_pad_ire';
+
       static minUniformOffset: number = 256;
 
       private _tid: string = 'rendering thread' + Renderer._id++;
+
       cvs: HTMLCanvasElement;
 
       constructor( private root: HTMLElement = document.body ){
@@ -124,9 +126,9 @@ export default class Renderer {
             }
 
             if( opt.attributes[opt.verticesAttribute] ){
-                  verticesCount = opt.attributes[opt.verticesAttribute].data.length;
+                  verticesCount = opt.attributes[opt.verticesAttribute].data.length/types[opt.attributes[opt.verticesAttribute].type].components;
             }else{
-                  verticesCount = Object.values( opt.attributes )[0].data.length;
+                  verticesCount = Object.values( opt.attributes )[0].data.length/types[opt.attributes[opt.verticesAttribute].type].components;
             }
 
             Thread.post( Messages.NEW_ENTITY, {
@@ -137,13 +139,34 @@ export default class Renderer {
                   uniforms: this.flatUniforms(opt.uniforms),
             }, this._tid );
       }
+      /**
+       * save entity with specified id for later use after remove ( @see remove )
+       */
+      save( id: string ){
+            Thread.post( Messages.SAVE, {
+                  id
+            }, this._tid );
+      }
+      loadSavedEntities( id: string | string[] ){
+            Thread.post( Messages.LOAD_SAVED, {
+                  id
+            }, this._tid );
+      }
       update( id: string, uniforms: { binding: number, group: number, data: Record<string,number[]> }[] ){
-            console.log( 'update' )
+            
             Thread.post( Messages.UPDATE_UNIFORMS, {
                   uniforms,
                   id,
             }, this._tid );
       }
+      /**
+       * remove all entities actually rendered 
+       * they need to be re-created to be rendered again
+       */
+      removeAll(){
+            Thread.post( Messages.DELETE_ALL, null, this._tid );
+      }
+
       changeRoot( newRoot: HTMLElement ){
             this.root = newRoot;
             this.cvs.remove();
