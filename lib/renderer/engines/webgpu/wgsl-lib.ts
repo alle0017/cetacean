@@ -134,7 +134,7 @@ export const std = {
             @vertex
             fn vertex_shader( attr: Attributes ) -> Varyings {
                   var v: Varyings;
-                  v.position = uniforms.transformation * uniforms.perspective * attr.position;
+                  v.position = uniforms.perspective * uniforms.transformation * attr.position;
                   v.color = attr.color;
                   v.normal = ( uniforms.transformation * uniforms.perspective * vec4f( attr.normal, 1.0 ) ).xyz;
 
@@ -184,7 +184,7 @@ export const std = {
                   (attr.position.x - uniforms.coords_min.x)/(uniforms.coords_max.x - uniforms.coords_min.x),
                   (attr.position.y - uniforms.coords_min.y)/(uniforms.coords_max.y - uniforms.coords_min.y)
             );
-            v.normal = ( uniforms.transformation * uniforms.perspective * vec4f( attr.normal, 1.0 ) ).xyz;
+            v.normal = attr.normal;
 
             return v;
       }
@@ -227,7 +227,7 @@ export const std = {
             var v: Varyings;
             v.position = uniforms.transformation * uniforms.perspective * attr.position;
             v.tex_coords = attr.tex_coords;
-            v.normal = ( uniforms.transformation * uniforms.perspective * vec4f( attr.normal, 1.0 ) ).xyz;
+            v.normal = attr.normal;
 
             return v;
       }
@@ -311,11 +311,9 @@ export const std = {
             return vec4f(color.rgb * dot( 
                         normalize( v.normal ), 
                         fragment_uniforms.light_direction.xyz
-                        ) * 0.5 + 0.5, 
+                        ), 
                   color.a 
             );
       }
       `,   
-      
-
 }

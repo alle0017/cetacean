@@ -24,6 +24,7 @@ export class Game {
             this.renderer.render();
 
             this.view = new Mat.ViewDelegate( this.getResolution() );
+            this.view.zFar;
             
             this.events = new EventSystem();
             this.loader = new Loader();

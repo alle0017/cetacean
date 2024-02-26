@@ -1,4 +1,4 @@
-import { types } from "../enums.js";
+import { types } from "../renderingThread/enums.js";
 export default class Engine {
     /**bind two arrays by mixing them and returns the offset of the next attribute to mix */
     mixArrays(mappedRange, attributes, stride) {
@@ -20,7 +20,6 @@ export default class Engine {
             }
             offset += types[values[x].type].components;
         }
-        console.log(...arrays['f32'].values());
     }
     getVertexCount(type) {
         switch (type) {
@@ -42,31 +41,3 @@ export default class Engine {
         return indices;
     }
 }
-/**
--1 1 0.5 1
-0 0
-1 0 0
-1 -1 0.5 1
-1 1
-1 0 0
-1 1 0.5 1
-1 0
-1 0 0
--1 -1 0.5 1
-0 1
-1 0 0
-0 0 0 0 */
-/**
--1 1 0.5 1
-0 0
-1 0 0
-1 -1 0.5 1
-1 1
-1 0 0
-1 1 0.5 1
-1 0
-1 0 0
--1 -1 0.5 1
-0 1
-1 0 0
- */ 

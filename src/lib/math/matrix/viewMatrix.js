@@ -40,7 +40,4 @@ export class ViewDelegate {
         // Calculate and assign a new perspective matrix based on camera properties
         this.perspectiveMatrix = Matrix.perspective(this._fieldOfView, this._resolution, this._near, this._far);
     }
-    getMatrices() {
-        return this.perspectiveMatrix;
-    }
 }

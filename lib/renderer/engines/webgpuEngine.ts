@@ -1,8 +1,8 @@
-import Engine from "../engine.js";
-import WebGPU from "./webgpu.js";
-import Thread from "../../../worker.js";
-import { types, } from "../../enums.js";
-import type { ShaderMessage, AttributeDescriptor, UniformDataDescriptor, Uniform, Drawable, GPUType } from "../../types.d.ts";
+import Engine from "./engine.js";
+import WebGPU from "./webgpu/webgpu.js";
+import Thread from "../../worker.js";
+import { types, } from "../renderingThread/enums.js";
+import type { ShaderMessage, AttributeDescriptor, UniformDataDescriptor, Uniform, Drawable, GPUType } from "../renderingThread/types.js";
 
 export default class WebGPUEngine extends Engine {
       /**
@@ -212,7 +212,7 @@ export default class WebGPUEngine extends Engine {
 
             // generate draw function
             const draw = this.createRenderFunction( pipeline, vBuffer, indexBuffer, bindGroups, opt.index.length );
-            
+           
             // return drawable
             return {
                   draw,

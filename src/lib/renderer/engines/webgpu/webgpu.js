@@ -1,5 +1,5 @@
 import Thread from '../../../worker.js';
-import { types } from '../../enums.js';
+import { types } from '../../renderingThread/enums.js';
 class WebGPU {
     static async get(cvs) {
         if (cvs && !this.instance) {

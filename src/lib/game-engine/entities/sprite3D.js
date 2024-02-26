@@ -1,17 +1,35 @@
 import { ElementModel } from "./elementModel.js";
-import { std, Shapes } from "../../renderer/index.js";
-class Sprite2D extends ElementModel {
-    constructor(texture) {
-        const shape = Shapes.rectangle();
-        super(`${Sprite2D.elementID}${Sprite2D.lastUsedKey++}`);
+import { std } from "../../renderer/index.js";
+class Sprite3D extends ElementModel {
+    findMinMaxCoords(vertices) {
+        const max = [vertices[0], vertices[1]];
+        const min = [vertices[0], vertices[1]];
+        for (let i = 0; i < vertices.length; i += 4) {
+            for (let j = 0; j < 2; j++) {
+                if (vertices[i + j] > max[j]) {
+                    max[j] = vertices[i + j];
+                }
+                else if (vertices[i + j] < min[j]) {
+                    min[j] = vertices[i + j];
+                }
+            }
+        }
+        return {
+            max,
+            min,
+        };
+    }
+    constructor(texture, shape) {
+        super(`${Sprite3D.elementID}${Sprite3D.lastUsedKey++}`);
         this.lightDirection = [1, 1, 1];
+        const { min, max } = this.findMinMaxCoords(shape.vertices);
         if (texture instanceof URL)
             texture = texture.toString();
-        Sprite2D.game.loader.image(texture).then(((image) => {
-            Sprite2D.game.renderer.create({
+        Sprite3D.game.loader.image(texture).then(((image) => {
+            Sprite3D.game.renderer.create({
                 id: this.id,
                 fragment: std.textureFragment,
-                vertex: std.textureVertex,
+                vertex: std.texture3DVertex,
                 verticesAttribute: "position",
                 attributes: {
                     position: {
@@ -19,20 +37,10 @@ class Sprite2D extends ElementModel {
                         type: 'f32x4',
                         location: 0,
                     },
-                    tex_coords: {
-                        data: [
-                            1, 1,
-                            0, 0,
-                            1, 0,
-                            0, 1,
-                        ],
-                        type: 'f32x2',
-                        location: 1,
-                    },
                     normal: {
                         data: shape.normals,
                         type: 'f32x3',
-                        location: 2,
+                        location: 1,
                     },
                 },
                 uniforms: [{
@@ -44,8 +52,16 @@ class Sprite2D extends ElementModel {
                                 type: 'f32'
                             },
                             perspective: {
-                                data: Sprite2D.game.view.perspectiveMatrix,
+                                data: Sprite3D.game.view.perspectiveMatrix,
                                 type: 'f32'
+                            },
+                            coords_min: {
+                                data: min,
+                                type: 'f32',
+                            },
+                            coords_max: {
+                                data: max,
+                                type: 'f32',
                             },
                         }
                     }, {
@@ -71,6 +87,6 @@ class Sprite2D extends ElementModel {
         }).bind(this));
     }
 }
-Sprite2D.elementID = 'sprite_2D-';
-Sprite2D.lastUsedKey = 0;
-export { Sprite2D };
+Sprite3D.elementID = 'sprite_3D-';
+Sprite3D.lastUsedKey = 0;
+export { Sprite3D };

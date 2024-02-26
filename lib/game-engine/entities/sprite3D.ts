@@ -7,31 +7,20 @@ import { Axis } from "../../enum.js";
 import { std, Shapes } from "../../renderer/index.js";
 
 import type { ShapeDescriptor } from "../../types.d.ts";
-import type { Color } from '../../renderer/types.d.ts';
 
-/**
-@ignore
-u = (x - xmin) / (xmax - xmin)
-v = (y - ymin) / (ymax - ymin)
 
-Where (xmin,ymin)(xmin​,ymin​) and (xmax,ymax)(xmax​,ymax​) represent the minimum and maximum extents of your mesh along the X and Y axes.
+export class Sprite3D extends ElementModel {
 
-utex​=u×width
-vtex=v×height
- */
-
-export class Sprite2D extends ElementModel {
-
-      private static readonly elementID: string = 'sprite_2D-';
+      private static readonly elementID: string = 'sprite_3D-';
       private static lastUsedKey: number = 0;
 
       private lightDirection: [number, number, number] = [1, 1, 1];
 
       private findMinMaxCoords( vertices: number[] ){
-            const max = [ vertices[0], vertices[1] ];
-            const min = [ vertices[0], vertices[1] ];
+            const max: [number, number] = [ vertices[0], vertices[1] ];
+            const min: [number, number] = [ vertices[0], vertices[1] ];
 
-            for( let i = 0; i < vertices.length/4; i+= 4 ){
+            for( let i = 0; i < vertices.length; i+= 4 ){
                   for( let j = 0; j < 2; j++ ){
                         if( vertices[i + j] > max[j] ){
                               max[j] = vertices[i + j]
@@ -45,22 +34,22 @@ export class Sprite2D extends ElementModel {
                   min,
             }
       }
-      constructor( texture: string | URL ){
+      constructor( texture: string | URL, shape: ShapeDescriptor ){
 
-            const shape = Shapes.rectangle();
+            super(`${Sprite3D.elementID}${Sprite3D.lastUsedKey++}`)
 
-            super( `${Sprite2D.elementID}${Sprite2D.lastUsedKey++}` );
+            const { min, max } = this.findMinMaxCoords( shape.vertices );
 
             if( texture instanceof URL )
                   texture = texture.toString();
 
-            Sprite2D.game.loader.image( texture ).then( ( (image: ImageBitmap) =>{
+            Sprite3D.game.loader.image( texture ).then( ( (image: ImageBitmap) =>{
             
-                  Sprite2D.game.renderer.create({
+                  Sprite3D.game.renderer.create({
                         id: this.id,
                         fragment: std.textureFragment,
 
-                        vertex: std.textureVertex,
+                        vertex: std.texture3DVertex,
                         verticesAttribute: "position",
                         attributes: {
                               position: { 
@@ -68,21 +57,10 @@ export class Sprite2D extends ElementModel {
                                     type: 'f32x4',
                                     location: 0,
                               },
-                              tex_coords: {
-                                    data: [
-
-                                          0, 0,
-                                          1, 1,
-                                          1, 0,
-                                          0, 1,
-                                    ],
-                                    type: 'f32x2',
-                                    location: 1,
-                              },
                               normal: {
                                     data: shape.normals,
                                     type: 'f32x3',
-                                    location: 2,
+                                    location: 1,
                               },
                               
                         },
@@ -90,14 +68,26 @@ export class Sprite2D extends ElementModel {
                               group: 0,
                               binding: 0,
                               data: {
-                                    perspective: {
-                                          data: Mat.IDENTITY_4X4,
-                                          type: 'f32'
-                                    },
+                                    
                                     transformation: {
                                           data: this.transformation,
                                           type: 'f32'
-                                    }
+                                    },
+                                    perspective: {
+                                          data: Sprite3D.game.view.perspectiveMatrix,
+                                          type: 'f32'
+                                    },
+                                    coords_min: {
+                                          data: min,
+                                          type: 'f32',
+                                    },
+
+                                    coords_max: {
+                                          data: max,
+                                          type: 'f32',
+                                    },
+                                    
+                                    
                               }
                         }, {
                               group: 0,

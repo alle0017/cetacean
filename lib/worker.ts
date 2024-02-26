@@ -90,7 +90,6 @@ export default class Thread {
             thread.addEventListener('message', e =>{
                   if( !('type' in e.data) || !('message' in e.data) || e.data.type !== 'log' )
                         return;
-                  Thread.log(e.data.message);
             });
             thread.addEventListener('message', e =>{
                   if( !('type' in e.data) || !('message' in e.data) || e.data.type !== 'error' )
@@ -106,11 +105,11 @@ export default class Thread {
                   return;
             }
             this.#listeners[message] = callback;
+            
             if( Thread.isChildThread() ){
                   self.addEventListener('message', e =>{
                         if( !('type' in e.data) || e.data.type !== message )
                               return;
-      
                         if( Thread.#waiting ){
                               Thread.#queue.push( e );
                         }else if( 'data' in e.data ){

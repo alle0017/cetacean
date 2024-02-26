@@ -2,6 +2,7 @@ import { Game } from '../game.js';
 import { Axis } from "../../enum.js";
 
 import * as Mat from '../../math/matrix/index.js';
+import { IDENTITY_4X4 } from '../../math/matrix/matrixOperations';
 
 
 export const event = ( event: string )=>{
@@ -46,35 +47,68 @@ export class ElementModel {
       set z(value: number) {
             if( this.transformation[14] == value )
                   return;
-            this.transformation = Mat.compose( this.transformation, 4, Mat.translate({
+            this.transformation = Mat.translate({
                   x: 0,
                   y: 0,
                   z: value
-            }))
+            })
+            ElementModel.game.renderer.update( this.id, [{
+                  binding: 0,
+                  group: 0,
+                  data: {
+                        transformation: this.transformation,
+                  }
+            }])
       }
 
-      get xAngle(){ return 0 }
+      get xAngle(){ return this.angles[0];  }
       set xAngle(value: number){
             if( this.angles[0] === value )
                   return;
             this.angles[0] = value;
-            this.transformation = Mat.compose( this.transformation, 4, Mat.rotation( value, Axis.X ) );
+            this.transformation = Mat.compose( 
+                  this.transformation, 
+                  4, 
+                  Mat.rotation( value, Axis.X ) 
+            )
+            ElementModel.game.renderer.update( this.id, [{
+                  binding: 0,
+                  group: 0,
+                  data: {
+                        transformation: this.transformation,
+                  }
+            }])
+            console.log(this.transformation);
       }
 
-      get yAngle(){ return 0 }
+      get yAngle(){ return this.angles[1] }
       set yAngle(value: number){
             if( this.angles[1] === value )
                   return;
             this.angles[1] = value;
             this.transformation = Mat.compose( this.transformation, 4, Mat.rotation( value, Axis.Y ) );
+            ElementModel.game.renderer.update( this.id, [{
+                  binding: 0,
+                  group: 0,
+                  data: {
+                        transformation: this.transformation,
+                  }
+            }])
       }
 
-      get zAngle(){ return 0 }
+      get zAngle(){ return this.angles[2] }
       set zAngle(value: number){
             if( this.angles[2] === value )
                   return;
             this.angles[2] = value;
             this.transformation = Mat.compose( this.transformation, 4, Mat.rotation( value, Axis.Z ) );
+            ElementModel.game.renderer.update( this.id, [{
+                  binding: 0,
+                  group: 0,
+                  data: {
+                        transformation: this.transformation,
+                  }
+            }])
       }
       constructor( id: string ){
             this.id = id;

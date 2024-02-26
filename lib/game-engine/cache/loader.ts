@@ -4,7 +4,7 @@ export class Loader {
             //const url = new URL( path );
             
             //postMessage({ url: url.toString(), message: 'cache' });
-
+            
             const img = document.createElement('img');
 
             img.src = path;

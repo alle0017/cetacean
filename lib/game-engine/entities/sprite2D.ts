@@ -1,24 +1,6 @@
-import { Game } from "../game.js";
 import { ElementModel } from "./elementModel.js";
-
-import * as Mat from '../../math/matrix/index.js';
-
-import { Axis } from "../../enum.js";
 import { std, Shapes } from "../../renderer/index.js";
-
-import type { ShapeDescriptor } from "../../types.d.ts";
-import type { Color } from '../../renderer/types.d.ts';
-
-/**
-@ignore
-u = (x - xmin) / (xmax - xmin)
-v = (y - ymin) / (ymax - ymin)
-
-Where (xmin,ymin)(xmin​,ymin​) and (xmax,ymax)(xmax​,ymax​) represent the minimum and maximum extents of your mesh along the X and Y axes.
-
-utex​=u×width
-vtex=v×height
- */
+import * as Mat from '../../math/matrix/index.js'
 
 export class Sprite2D extends ElementModel {
 
@@ -36,8 +18,8 @@ export class Sprite2D extends ElementModel {
             if( texture instanceof URL )
                   texture = texture.toString();
 
-            Sprite2D.game.loader.image( texture ).then( ( (image: ImageBitmap) =>{
-            
+            Sprite2D.game.loader.image( texture ).then( ( (image: ImageBitmap)=>{
+                  
                   Sprite2D.game.renderer.create({
                         id: this.id,
                         fragment: std.textureFragment,
@@ -53,8 +35,8 @@ export class Sprite2D extends ElementModel {
                               tex_coords: {
                                     data: [
 
-                                          0, 0,
                                           1, 1,
+                                          0, 0,
                                           1, 0,
                                           0, 1,
                                     ],
@@ -72,14 +54,15 @@ export class Sprite2D extends ElementModel {
                               group: 0,
                               binding: 0,
                               data: {
-                                    perspective: {
-                                          data: Mat.IDENTITY_4X4,
-                                          type: 'f32'
-                                    },
+
                                     transformation: {
                                           data: this.transformation,
                                           type: 'f32'
-                                    }
+                                    },
+                                    perspective: {
+                                          data: Sprite2D.game.view.perspectiveMatrix,
+                                          type: 'f32'
+                                    },
                               }
                         }, {
                               group: 0,

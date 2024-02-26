@@ -55,7 +55,6 @@ class Thread {
         thread.addEventListener('message', e => {
             if (!('type' in e.data) || !('message' in e.data) || e.data.type !== 'log')
                 return;
-            Thread.log(e.data.message);
         });
         thread.addEventListener('message', e => {
             if (!('type' in e.data) || !('message' in e.data) || e.data.type !== 'error')

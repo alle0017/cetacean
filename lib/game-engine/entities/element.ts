@@ -7,7 +7,8 @@ import { Axis } from "../../enum.js";
 import { std } from "../../renderer/index.js";
 
 import type { ShapeDescriptor } from "../../types.d.ts";
-import type { Color } from '../../renderer/types.d.ts';
+import type { Color } from '../../renderer/renderingThread/types.js';
+import { perspective } from '../../math/matrix/matrices';
 
 export class Element extends ElementModel {
 
@@ -15,7 +16,7 @@ export class Element extends ElementModel {
 
       private static lastUsedKey: number = 0;
       
-      private lightDirection: [number, number, number] = [1, 8, -10];
+      private lightDirection: [number, number, number] = [1, 1, 1];
 
       constructor( shape: ShapeDescriptor, color: number[] | Color ){
 
@@ -54,7 +55,7 @@ export class Element extends ElementModel {
                         binding: 0,
                         data: {
                               perspective: {
-                                    data: Mat.IDENTITY_4X4,
+                                    data: Element.game.view.perspectiveMatrix,
                                     type: 'f32'
                               },
                               transformation: {

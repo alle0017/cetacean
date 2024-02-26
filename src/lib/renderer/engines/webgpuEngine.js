@@ -1,7 +1,7 @@
-import Engine from "../engine.js";
-import WebGPU from "./webgpu.js";
-import Thread from "../../../worker.js";
-import { types, } from "../../enums.js";
+import Engine from "./engine.js";
+import WebGPU from "./webgpu/webgpu.js";
+import Thread from "../../worker.js";
+import { types, } from "../renderingThread/enums.js";
 export default class WebGPUEngine extends Engine {
     /**
      * returns new instance of the WebGPUEngine if can be created.\

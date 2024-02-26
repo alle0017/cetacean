@@ -1,6 +1,5 @@
-import Thread from "lib/worker.js";
-import { types } from "../enums.js";
-import type { AttributeDescriptor, TypedArray, Drawable, ShaderMessage, GPUType, } from "../types.d.ts";
+import { types } from "../renderingThread/enums.js";
+import type { AttributeDescriptor, TypedArray, Drawable, ShaderMessage, GPUType, } from "../renderingThread/types.js";
 
 export default abstract class Engine {
       /**bind two arrays by mixing them and returns the offset of the next attribute to mix */
@@ -26,7 +25,6 @@ export default abstract class Engine {
                   }
                   offset += types[values[x].type].components;
             }
-            console.log( ...arrays['f32'].values() )
       }
       protected getVertexCount( type: GPUPrimitiveTopology ){
             switch( type ){
@@ -51,32 +49,3 @@ export default abstract class Engine {
       abstract create( opt: ShaderMessage ): Drawable;
       abstract write( buffer: GPUBuffer, offset: number, data: number[], type: GPUType ): void;
 }
-/**
--1 1 0.5 1 
-0 0 
-1 0 0 
-1 -1 0.5 1 
-1 1 
-1 0 0 
-1 1 0.5 1 
-1 0 
-1 0 0 
--1 -1 0.5 1 
-0 1 
-1 0 0 
-0 0 0 0 */
-
-/**
--1 1 0.5 1 
-0 0 
-1 0 0 
-1 -1 0.5 1 
-1 1 
-1 0 0 
-1 1 0.5 1 
-1 0 
-1 0 0 
--1 -1 0.5 1 
-0 1 
-1 0 0
- */

@@ -1,6 +1,6 @@
 import Thread from '../../../worker.js';
-import { types } from '../../enums.js';
-import type { Config, TextureOptions, BufferOptions, ShaderMessage, GPUType } from '../../types.d.ts';
+import { types } from '../../renderingThread/enums.js';
+import type { Config, TextureOptions, BufferOptions, ShaderMessage, GPUType } from '../../renderingThread/types.js';
 
 export default class WebGPU {
       private static instance: WebGPU;

@@ -134,12 +134,60 @@ export const std = {
             @vertex
             fn vertex_shader( attr: Attributes ) -> Varyings {
                   var v: Varyings;
-                  v.position = uniforms.transformation * uniforms.perspective * attr.position;
+                  v.position = uniforms.perspective * uniforms.transformation * attr.position;
                   v.color = attr.color;
                   v.normal = ( uniforms.transformation * uniforms.perspective * vec4f( attr.normal, 1.0 ) ).xyz;
 
                   return v;
             }
+      `,
+    /**
+    * ## vertex shader for 3D textures, usable with textureFragment:
+    * @attributes
+    * - location 0 vec4f position
+    * - location 1 vec3f normal
+    *
+    * @uniforms
+    * ##### group(0) binding(0):
+    * - perspective mat4x4f
+    * - transformation mat4x4f
+    * - coords_max vec2f
+    * - coords_min vec2f
+    * @returns Varying struct that contains:
+    * - normal vec3f
+    * - tex_coords: vec42f
+    */
+    texture3DVertex: /*wgsl*/ `
+      struct Attributes {
+            @location(0) position: vec4f,
+            @location(1) normal: vec3f,
+      }
+      struct Varyings {
+            @builtin(position) position: vec4f,
+            @location(0) normal: vec3f,
+            @location(1) tex_coords: vec2f,
+      }
+      struct Uniforms {
+            perspective: mat4x4f,
+            transformation: mat4x4f,
+            coords_max: vec2f,
+            coords_min: vec2f,
+      }
+      
+      @group(0) @binding(0) var<uniform> uniforms: Uniforms;
+
+      @vertex
+      fn vertex_shader( attr: Attributes ) -> Varyings {
+            var v: Varyings;
+            v.position = uniforms.transformation * uniforms.perspective * attr.position;
+            v.tex_coords = vec2f(
+                  (attr.position.x - uniforms.coords_min.x)/(uniforms.coords_max.x - uniforms.coords_min.x),
+                  (attr.position.y - uniforms.coords_min.y)/(uniforms.coords_max.y - uniforms.coords_min.y)
+            );
+            v.normal = attr.normal;
+
+            return v;
+      }
       `,
     /**
     * ## vertex shader with:
@@ -179,7 +227,7 @@ export const std = {
             var v: Varyings;
             v.position = uniforms.transformation * uniforms.perspective * attr.position;
             v.tex_coords = attr.tex_coords;
-            v.normal = ( uniforms.transformation * uniforms.perspective * vec4f( attr.normal, 1.0 ) ).xyz;
+            v.normal = attr.normal;
 
             return v;
       }
@@ -262,7 +310,7 @@ export const std = {
             return vec4f(color.rgb * dot( 
                         normalize( v.normal ), 
                         fragment_uniforms.light_direction.xyz
-                        ) * 0.5 + 0.5, 
+                        ), 
                   color.a 
             );
       }

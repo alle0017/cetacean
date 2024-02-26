@@ -5,8 +5,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var Renderer_1;
-import { types } from './renderingThread/enums.js';
-import WorkerMaster from "./master.js";
+import Thread from "../worker.js";
+import { Messages, types } from './renderingThread/enums.js';
+import { IDENTITY_4X4 } from '../math/matrix/matrixOperations.js';
 const getDeviceOffset = async () => {
     let adapter = await navigator.gpu.requestAdapter();
     return (constructor) => {
@@ -16,17 +17,26 @@ const getDeviceOffset = async () => {
         return constructor;
     };
 };
-let Renderer = Renderer_1 = class Renderer extends WorkerMaster {
+let Renderer = Renderer_1 = class Renderer {
+    constructor(root = document.body) {
+        this.root = root;
+        this._tid = 'rendering thread' + Renderer_1._id++;
+        this.cvs = document.createElement('canvas');
+        root.appendChild(this.cvs);
+        Thread.spawn(this._tid, new URL('./renderingThread/worker.js', import.meta.url));
+        Thread.expose(Messages.CANVAS_PASSED, { cvs: this.cvs.transferControlToOffscreen() }, this._tid);
+        Thread.wait(Messages.READY, this._tid);
+    }
     addPaddingKey(struct, deltaSize) {
         const padding = [];
         let key = 0;
         for (let i = 0; i < deltaSize / 4; i++) {
             padding.push(0);
         }
-        while (`${Renderer_1._uPadding}_${key}` in struct) {
+        while (`${Renderer_1._uPadding}.${key}` in struct) {
             key++;
         }
-        struct[`${Renderer_1._uPadding}_${key}`] = {
+        struct[`${Renderer_1._uPadding}.${key}`] = {
             type: 'f32',
             data: padding,
         };
@@ -39,9 +49,8 @@ let Renderer = Renderer_1 = class Renderer extends WorkerMaster {
             for (let j = 0; j < uniforms[i].length; j++) {
                 if (!uniforms[i][j] || typeof uniforms[i][j] == 'string' || uniforms[i][j] instanceof ImageBitmap)
                     continue;
-                //correcting size if it is not aligned properly (only if it isn't hte last element)
                 if (size && size % Renderer_1.minUniformOffset) {
-                    this.addPaddingKey(uniforms[last[0]][last[1]], Renderer_1.minUniformOffset - size % Renderer_1.minUniformOffset);
+                    this.addPaddingKey(uniforms[last[0]][last[1]], size % Renderer_1.minUniformOffset);
                 }
                 last = [i, j];
                 const values = Object.values(uniforms[i][j]);
@@ -87,6 +96,9 @@ let Renderer = Renderer_1 = class Renderer extends WorkerMaster {
             size
         };
     }
+    render() {
+        Thread.post(Messages.START, null, this._tid);
+    }
     create(opt) {
         const { vertexEntry, fragmentEntry } = this.getEntry(opt.fragment, opt.vertex);
         let verticesCount = 0;
@@ -100,9 +112,35 @@ let Renderer = Renderer_1 = class Renderer extends WorkerMaster {
         else {
             verticesCount = Object.values(opt.attributes)[0].data.length / types[opt.attributes[opt.verticesAttribute].type].components;
         }
-        this.sendNewEntityToThread(Object.assign(Object.assign({}, opt), { vertexEntry,
+        Thread.post(Messages.NEW_ENTITY, Object.assign(Object.assign({}, opt), { vertexEntry,
             fragmentEntry,
-            verticesCount, uniforms: this.flatUniforms(opt.uniforms) }));
+            verticesCount, uniforms: this.flatUniforms(opt.uniforms) }), this._tid);
+    }
+    /**
+     * save entity with specified id for later use after remove ( @see remove )
+     */
+    save(id) {
+        Thread.post(Messages.SAVE, {
+            id
+        }, this._tid);
+    }
+    loadSavedEntities(id) {
+        Thread.post(Messages.LOAD_SAVED, {
+            id
+        }, this._tid);
+    }
+    update(id, uniforms) {
+        Thread.post(Messages.UPDATE_UNIFORMS, {
+            id: id,
+            uniforms: IDENTITY_4X4,
+        }, this._tid);
+    }
+    /**
+     * remove all entities actually rendered
+     * they need to be re-created to be rendered again
+     */
+    removeAll() {
+        Thread.post(Messages.DELETE_ALL, null, this._tid);
     }
     changeRoot(newRoot) {
         this.root = newRoot;
@@ -110,7 +148,8 @@ let Renderer = Renderer_1 = class Renderer extends WorkerMaster {
         this.root.append(this.cvs);
     }
 };
-Renderer._uPadding = '__delta_padding_for_GPU_structs';
+Renderer._id = 0;
+Renderer._uPadding = '__u_pad_ire';
 Renderer.minUniformOffset = 256;
 Renderer = Renderer_1 = __decorate([
     (await getDeviceOffset())

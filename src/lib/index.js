@@ -6,4 +6,4 @@ export * from './math/matrix/index.js';
 export * from './math/math.js';
 //enums
 export * from './enum.js';
-export * from './renderer/enums.js';
+export * from './renderer/renderingThread/enums.js';

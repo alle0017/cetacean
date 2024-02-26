@@ -1,6 +1,6 @@
-import Thread from "../worker.js";
-import { Messages, types } from './enums.js'
-import type { ShaderDescriptor, UniformDescriptor, Uniform, UniformData, UniformDataDescriptor, } from './types.js';
+import { types } from './renderingThread/enums.js'
+import type { ShaderDescriptor, UniformDescriptor, Uniform, UniformData, UniformDataDescriptor, } from './renderingThread/types.js';
+import WorkerMaster from "./master.js";
 
 const getDeviceOffset = async ()=>{
       let adapter = await navigator.gpu.requestAdapter()
@@ -13,25 +13,11 @@ const getDeviceOffset = async ()=>{
 }
 
 @(await getDeviceOffset())
-export default class Renderer {
-      private static _id = 0;
-      private static _uPadding = '__u_pad_ire';
+export default class Renderer extends WorkerMaster {
+      private static _uPadding = '__delta_padding_for_GPU_structs';
 
       static minUniformOffset: number = 256;
 
-      private _tid: string = 'rendering thread' + Renderer._id++;
-
-      cvs: HTMLCanvasElement;
-
-      constructor( private root: HTMLElement = document.body ){
-            this.cvs = document.createElement('canvas');
-            
-            root.appendChild( this.cvs ); 
-
-            Thread.spawn( this._tid, new URL( './worker.js', import.meta.url ) );
-            Thread.expose( Messages.CANVAS_PASSED, { cvs: this.cvs.transferControlToOffscreen() }, this._tid );
-            Thread.wait( Messages.READY, this._tid );
-      }
       private addPaddingKey( struct: Record<string,UniformDataDescriptor>, deltaSize: number ) {
             
             const padding: number[] = [];
@@ -41,10 +27,11 @@ export default class Renderer {
             for( let i = 0; i < deltaSize/4; i++ ){
                   padding.push(0);
             }
-            while( `${Renderer._uPadding}.${key}` in struct ){
+            while( `${Renderer._uPadding}_${key}` in struct ){
                   key++;
             }
-            struct[`${Renderer._uPadding}.${key}`] = {
+            
+            struct[`${Renderer._uPadding}_${key}`] = {
                   type: 'f32',
                   data: padding,
             }
@@ -58,18 +45,20 @@ export default class Renderer {
                   for( let j = 0; j < uniforms[i].length; j++ ){
                         if( !uniforms[i][j] || typeof uniforms[i][j] == 'string' || uniforms[i][j] instanceof ImageBitmap )
                               continue;
+                        
+                        //correcting size if it is not aligned properly (only if it isn't hte last element)
                         if( size && size%Renderer.minUniformOffset ){
                               this.addPaddingKey( 
                                     uniforms
                                     [ last[0] ]
                                     [ last[1] ] as Record<string, UniformDataDescriptor>, 
-                                    size%Renderer.minUniformOffset
+                                    Renderer.minUniformOffset - size%Renderer.minUniformOffset
                               )
                         }
                         last = [i,j];
 
                         const values = Object.values( uniforms[i][j] );
-                        
+
                         for( let i = 0; i < values.length; i++ ){
                               size += values[i].data.length*types[(values[i] as UniformDataDescriptor).type].constructor.BYTES_PER_ELEMENT;
                         }
@@ -112,9 +101,6 @@ export default class Renderer {
                   size
             }
       }
-      render(){
-            Thread.post( Messages.START, null, this._tid );
-      }
 
       create( opt: ShaderDescriptor ){
             const { vertexEntry, fragmentEntry } = this.getEntry( opt.fragment, opt.vertex );
@@ -131,40 +117,13 @@ export default class Renderer {
                   verticesCount = Object.values( opt.attributes )[0].data.length/types[opt.attributes[opt.verticesAttribute].type].components;
             }
 
-            Thread.post( Messages.NEW_ENTITY, {
+            this.sendNewEntityToThread({
                   ...opt,
                   vertexEntry,
                   fragmentEntry,
                   verticesCount,
                   uniforms: this.flatUniforms(opt.uniforms),
-            }, this._tid );
-      }
-      /**
-       * save entity with specified id for later use after remove ( @see remove )
-       */
-      save( id: string ){
-            Thread.post( Messages.SAVE, {
-                  id
-            }, this._tid );
-      }
-      loadSavedEntities( id: string | string[] ){
-            Thread.post( Messages.LOAD_SAVED, {
-                  id
-            }, this._tid );
-      }
-      update( id: string, uniforms: { binding: number, group: number, data: Record<string,number[]> }[] ){
-            
-            Thread.post( Messages.UPDATE_UNIFORMS, {
-                  uniforms,
-                  id,
-            }, this._tid );
-      }
-      /**
-       * remove all entities actually rendered 
-       * they need to be re-created to be rendered again
-       */
-      removeAll(){
-            Thread.post( Messages.DELETE_ALL, null, this._tid );
+            });
       }
 
       changeRoot( newRoot: HTMLElement ){

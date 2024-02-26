@@ -1,10 +1,9 @@
 import { ElementModel } from "./elementModel.js";
-import * as Mat from '../../math/matrix/index.js';
 import { std } from "../../renderer/index.js";
 class Element extends ElementModel {
     constructor(shape, color) {
         super(`${Element.elementID}${Element.lastUsedKey++}`);
-        this.lightDirection = [1, 8, -10];
+        this.lightDirection = [1, 1, 1];
         if (!(color instanceof Array)) {
             let colors = [];
             for (let i = 0; i < shape.vertices.length / 3; i++)
@@ -38,7 +37,7 @@ class Element extends ElementModel {
                     binding: 0,
                     data: {
                         perspective: {
-                            data: Mat.IDENTITY_4X4,
+                            data: Element.game.view.perspectiveMatrix,
                             type: 'f32'
                         },
                         transformation: {
