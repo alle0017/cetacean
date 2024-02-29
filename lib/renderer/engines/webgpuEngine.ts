@@ -87,7 +87,10 @@ export default class WebGPUEngine extends Engine {
       private writeUniformBuffer( buffer: GPUBuffer, data: Record<string, UniformDataDescriptor>, offset: number ){
             const map: Record<string, number> = {};
             const entries = Object.entries( data );
+            
             for( let i = 0; i < entries.length; i++ ){
+                  
+                  console.log( entries[i], offset )
                   WebGPUEngine.gpu.writeBuffer(
                         buffer, 
                         entries[i][1].data,
@@ -101,14 +104,6 @@ export default class WebGPUEngine extends Engine {
                   offset, 
                   map
             };
-      }
-      private getUniformBindingSize( data: Record<string, UniformDataDescriptor> ){
-            let size = 0;
-            const values = Object.values( data );
-            for( let i = 0; i < values.length; i++  ){
-                  size += values[i].data.length*types[values[i].type].constructor.BYTES_PER_ELEMENT;
-            }
-            return size;
       }
       private createUniforms( uniforms: Uniform, pipeline: GPURenderPipeline  ){
             const buffer = WebGPUEngine.gpu.createBuffer({
@@ -142,10 +137,15 @@ export default class WebGPUEngine extends Engine {
                                     resource: {
                                           buffer,
                                           offset,
-                                          size: this.getUniformBindingSize(uniforms.entries[i][j] as Record<string, UniformDataDescriptor>),
+                                          size: uniforms.sizesForStruct[i][j]//this.getUniformBindingSize(uniforms.entries[i][j] as Record<string, UniformDataDescriptor>),
                                     }
                               })
-                              const tmp = this.writeUniformBuffer( buffer, (uniforms.entries[i][j] as Record<string, UniformDataDescriptor>), offset);
+                              const tmp = this.writeUniformBuffer( 
+                                    buffer, 
+                                    (uniforms.entries[i][j] as Record<string, UniformDataDescriptor>), 
+                                    offset
+                              );
+                              
                               offset = tmp.offset;
                               map[i][j] = tmp.map;
                         }

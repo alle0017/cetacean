@@ -65,6 +65,14 @@ export const types = Object.freeze({
             atomic: 'i8',
             padding: 4,
       },
+      i8: {
+            size: 1,
+            components: 2,
+            type: "sint8x2",
+            constructor: Int8Array,
+            atomic: 'i8',
+            padding: 4,
+      },
       i8x4: {
             size: 1,
             components: 4,

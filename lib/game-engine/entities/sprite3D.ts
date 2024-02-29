@@ -1,10 +1,5 @@
-import { Game } from "../game.js";
 import { ElementModel } from "./elementModel.js";
-
-import * as Mat from '../../math/matrix/index.js';
-
-import { Axis } from "../../enum.js";
-import { std, Shapes } from "../../renderer/index.js";
+import { std, } from "../../renderer/index.js";
 
 import type { ShapeDescriptor } from "../../types.d.ts";
 
@@ -49,7 +44,7 @@ export class Sprite3D extends ElementModel {
                         id: this.id,
                         fragment: std.textureFragment,
 
-                        vertex: std.texture3DVertex,
+                        vertex: std.textureVertex,
                         verticesAttribute: "position",
                         attributes: {
                               position: { 
@@ -68,34 +63,31 @@ export class Sprite3D extends ElementModel {
                               group: 0,
                               binding: 0,
                               data: {
-                                    
                                     transformation: {
                                           data: this.transformation,
-                                          type: 'f32'
-                                    },
+                                          type: 'f32x4'
+                                    },  
                                     perspective: {
                                           data: Sprite3D.game.view.perspectiveMatrix,
-                                          type: 'f32'
-                                    },
+                                          type: 'f32x4'
+                                    },                  
                                     coords_min: {
                                           data: min,
-                                          type: 'f32',
+                                          type: 'f32x2',
                                     },
-
                                     coords_max: {
                                           data: max,
-                                          type: 'f32',
-                                    },
-                                    
-                                    
+                                          type: 'f32x2',
+                                    },  
+                                       
                               }
                         }, {
                               group: 0,
                               binding: 1,
                               data: {
                                     light_direction: {
-                                          data: [...this.lightDirection, 1],
-                                          type: 'f32'
+                                          data: this.lightDirection,
+                                          type: 'f32x3'
                                     },
                               } 
                         }, {
@@ -109,6 +101,8 @@ export class Sprite3D extends ElementModel {
                         }],
                         index: shape.indices
                   })
+                  this.z -= 500;
+                  this.xAngle = 20;
             }).bind(this));
       }
 }

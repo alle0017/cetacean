@@ -1,5 +1,17 @@
-import Thread from '../../worker.js';
-export default class RenderingEngine {
+import Thread from "../../worker.js";
+import WebGPUEngine from "../engines/webgpuEngine.js";
+/**
+ * class delegate to send commands to the rendering engine
+ */
+export default class RendererWorker {
+    static async getEngine(offscreen) {
+        const e = await WebGPUEngine.new(offscreen);
+        if (e)
+            this.engine = e;
+        else {
+            Thread.log('cannot use webgpu');
+        }
+    }
     constructor() {
         this.entities = {};
         this.saved = {};
@@ -20,7 +32,7 @@ export default class RenderingEngine {
     }
     draw() {
         const render = (() => {
-            this.engine.draw(Object.values(this.entities));
+            RendererWorker.engine.draw(Object.values(this.entities));
             this.frames = requestAnimationFrame(render);
         }).bind(this);
         render();
@@ -30,7 +42,6 @@ export default class RenderingEngine {
         this.entities = {};
     }
     update(id, uniforms) {
-        Thread.log('update');
         if (!this.entities[id]) {
             Thread.error('No entities found with id ' + id);
             return;
@@ -38,8 +49,7 @@ export default class RenderingEngine {
         for (let i = 0; i < uniforms.length; i++) {
             const entries = Object.entries(uniforms[i].data);
             for (let j = 0; j < entries.length; j++) {
-                Thread.log(this.entities[id].uniformMap);
-                this.engine.write(this.entities[id].uBuffer, this.entities[id].uniformMap[uniforms[i].group][uniforms[i].binding][entries[j][0]], entries[j][1], this.entities[id].uniforms[uniforms[i].group][uniforms[i].binding][entries[j][0]].type);
+                RendererWorker.engine.write(this.entities[id].uBuffer, this.entities[id].uniformMap[uniforms[i].group][uniforms[i].binding][entries[j][0]], entries[j][1], this.entities[id].uniforms[uniforms[i].group][uniforms[i].binding][entries[j][0]].type);
             }
         }
     }

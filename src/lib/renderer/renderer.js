@@ -31,7 +31,41 @@ let Renderer = Renderer_1 = class Renderer extends WorkerMaster {
             data: padding,
         };
     }
+    addPaddingToUniform(u, alignment) {
+        const data = [];
+        const delta = (alignment - types[u.type].components * types[u.type].constructor.BYTES_PER_ELEMENT) / types[u.type].constructor.BYTES_PER_ELEMENT;
+        if (!delta)
+            return;
+        const padding = [];
+        for (let j = 0; j < delta; j++) {
+            padding.push(0);
+        }
+        for (let i = 0; i < u.data.length; i += types[u.type].components) {
+            data.push(...u.data.slice(i, types[u.type].components), ...padding);
+        }
+        u.data = data;
+    }
+    getSizeOfStruct(values) {
+        let size = 0;
+        let type = 'i8';
+        for (let i = 0; i < values.length; i++) {
+            let components = types[values[i].type].components;
+            let typeSize = types[values[i].type].constructor.BYTES_PER_ELEMENT;
+            if (types[type].components * types[type].constructor.BYTES_PER_ELEMENT < components * typeSize)
+                type = values[i].type;
+        }
+        let alignment = types[type].components * types[type].constructor.BYTES_PER_ELEMENT;
+        //align to 4
+        if (types[type].components == 3)
+            alignment += types[type].constructor.BYTES_PER_ELEMENT;
+        for (let i = 0; i < values.length; i++) {
+            this.addPaddingToUniform(values[i], alignment);
+            size += values[i].data.length * types[values[i].type].constructor.BYTES_PER_ELEMENT;
+        }
+        return size;
+    }
     getUniformBufferSize(uniforms) {
+        const sizesForStruct = [];
         let size = 0;
         /**last buffer position in array */
         let last = [0, 0];
@@ -45,12 +79,16 @@ let Renderer = Renderer_1 = class Renderer extends WorkerMaster {
                 }
                 last = [i, j];
                 const values = Object.values(uniforms[i][j]);
-                for (let i = 0; i < values.length; i++) {
-                    size += values[i].data.length * types[values[i].type].constructor.BYTES_PER_ELEMENT;
-                }
+                if (!sizesForStruct[i])
+                    sizesForStruct[i] = [];
+                sizesForStruct[i][j] = this.getSizeOfStruct(values);
+                size += sizesForStruct[i][j];
             }
         }
-        return size;
+        return {
+            size,
+            sizesForStruct
+        };
     }
     getEntry(fragment, vertex) {
         const fragmentEntry = fragment.match(/@fragment[\s\b]+fn[\s\b]+[a-zA-Z0-9_]+[\s\b]*/);
@@ -81,10 +119,11 @@ let Renderer = Renderer_1 = class Renderer extends WorkerMaster {
                 flattened[opt[i].group] = [];
             flattened[opt[i].group][opt[i].binding] = opt[i].data;
         }
-        const size = this.getUniformBufferSize(flattened);
+        const { size, sizesForStruct } = this.getUniformBufferSize(flattened);
         return {
             entries: flattened,
-            size
+            size,
+            sizesForStruct,
         };
     }
     create(opt) {

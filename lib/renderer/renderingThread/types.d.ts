@@ -23,7 +23,8 @@ export type GPUType =  'i32' |
 'f32' | 
 'f32x2' | 
 'f32x3' | 
-'f32x4';
+'f32x4' |
+'i8';
 
 export type AttributeDescriptor = {
       type: GPUType,
@@ -56,6 +57,7 @@ export type AttributeData = {
 export type UniformData = ImageBitmap | 'sampler' | Record<string,UniformDataDescriptor>;
 
 export type Uniform = {
+      sizesForStruct: number[][],
       size: number,
       entries: UniformData[][]
 };

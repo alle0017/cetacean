@@ -152,9 +152,12 @@ export default class WebGPU {
             );
       }
       createBuffer( opt: BufferOptions ){
+
             let mappedAtCreation = false;
-            let usage = GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-            let size: number = types[opt.type].constructor.BYTES_PER_ELEMENT;;
+            let usage = GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST;
+            let size: number = types[opt.type].constructor.BYTES_PER_ELEMENT;
+
+
             if( 'usage' in opt ){
                   mappedAtCreation = true;
                   usage = opt.usage == 'vertex'? 
@@ -164,6 +167,8 @@ export default class WebGPU {
             }else{
                   size *= opt.length; 
             }
+
+
             const buffer = WebGPU.device.createBuffer({
                   size,
                   usage,

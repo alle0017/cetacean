@@ -73,6 +73,7 @@ export default class WebGPUEngine extends Engine {
         const map = {};
         const entries = Object.entries(data);
         for (let i = 0; i < entries.length; i++) {
+            console.log(entries[i], offset);
             WebGPUEngine.gpu.writeBuffer(buffer, entries[i][1].data, entries[i][1].type, offset);
             map[entries[i][0]] = offset;
             offset += entries[i][1].data.length * types[entries[i][1].type].constructor.BYTES_PER_ELEMENT;
@@ -81,14 +82,6 @@ export default class WebGPUEngine extends Engine {
             offset,
             map
         };
-    }
-    getUniformBindingSize(data) {
-        let size = 0;
-        const values = Object.values(data);
-        for (let i = 0; i < values.length; i++) {
-            size += values[i].data.length * types[values[i].type].constructor.BYTES_PER_ELEMENT;
-        }
-        return size;
     }
     createUniforms(uniforms, pipeline) {
         const buffer = WebGPUEngine.gpu.createBuffer({
@@ -123,7 +116,7 @@ export default class WebGPUEngine extends Engine {
                         resource: {
                             buffer,
                             offset,
-                            size: this.getUniformBindingSize(uniforms.entries[i][j]),
+                            size: uniforms.sizesForStruct[i][j] //this.getUniformBindingSize(uniforms.entries[i][j] as Record<string, UniformDataDescriptor>),
                         }
                     });
                     const tmp = this.writeUniformBuffer(buffer, uniforms.entries[i][j], offset);

@@ -2,7 +2,8 @@ import { Game, Scene, Sprite3D } from './lib/index.js';
 class MyScene extends Scene {
     constructor(game) {
         super(game);
-        new Sprite3D('./icon.png', {
+        //const s = new Sprite2D('./icon.png')
+        const s = new Sprite3D('./icon.png', {
             vertices: [
                 1, 1, 1, 1,
                 -1, 1, 1, 1,
@@ -39,9 +40,29 @@ class MyScene extends Scene {
                 1, 0, 0,
                 1, 0, 0,
                 1, 0, 0,
-                -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1
+                -1, 0, 0,
+                -1, 0, 0,
+                -1, 0, 0,
+                -1, 0, 0,
+                0, 1, 0,
+                0, 1, 0,
+                0, 1, 0,
+                0, 1, 0,
+                0, -1, 0,
+                0, -1, 0,
+                0, -1, 0,
+                0, -1, 0,
+                0, 0, 1,
+                0, 0, 1,
+                0, 0, 1,
+                0, 0, 1,
+                0, 0, -1,
+                0, 0, -1,
+                0, 0, -1,
+                0, 0, -1
             ]
         });
+        setInterval(() => { s.xAngle += 0.0001; console.log(s.xAngle); }, 100);
     }
 }
 const game = Game.new();

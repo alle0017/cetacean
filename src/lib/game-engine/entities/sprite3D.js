@@ -1,5 +1,5 @@
 import { ElementModel } from "./elementModel.js";
-import { std } from "../../renderer/index.js";
+import { std, } from "../../renderer/index.js";
 class Sprite3D extends ElementModel {
     findMinMaxCoords(vertices) {
         const max = [vertices[0], vertices[1]];
@@ -29,7 +29,7 @@ class Sprite3D extends ElementModel {
             Sprite3D.game.renderer.create({
                 id: this.id,
                 fragment: std.textureFragment,
-                vertex: std.texture3DVertex,
+                vertex: std.textureVertex,
                 verticesAttribute: "position",
                 attributes: {
                     position: {
@@ -49,19 +49,19 @@ class Sprite3D extends ElementModel {
                         data: {
                             transformation: {
                                 data: this.transformation,
-                                type: 'f32'
+                                type: 'f32x4'
                             },
                             perspective: {
                                 data: Sprite3D.game.view.perspectiveMatrix,
-                                type: 'f32'
+                                type: 'f32x4'
                             },
                             coords_min: {
                                 data: min,
-                                type: 'f32',
+                                type: 'f32x2',
                             },
                             coords_max: {
                                 data: max,
-                                type: 'f32',
+                                type: 'f32x2',
                             },
                         }
                     }, {
@@ -69,8 +69,8 @@ class Sprite3D extends ElementModel {
                         binding: 1,
                         data: {
                             light_direction: {
-                                data: [...this.lightDirection, 1],
-                                type: 'f32'
+                                data: this.lightDirection,
+                                type: 'f32x3'
                             },
                         }
                     }, {
@@ -84,6 +84,8 @@ class Sprite3D extends ElementModel {
                     }],
                 index: shape.indices
             });
+            this.z -= 500;
+            this.xAngle = 20;
         }).bind(this));
     }
 }

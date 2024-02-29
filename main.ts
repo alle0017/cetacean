@@ -6,7 +6,8 @@ import { Game, Scene, Element, Sprite2D, Shapes, Sprite3D  } from './lib/index.j
 class MyScene extends Scene {
       constructor( game: Game ){
             super(game);
-            new Sprite3D('./icon.png', {
+            //const s = new Sprite2D('./icon.png')
+            const s = new Sprite3D('./icon.png', {
                   vertices: [
                         1, 1, 1, 1,
                         -1, 1, 1, 1, 
@@ -48,9 +49,35 @@ class MyScene extends Scene {
                         1, 0, 0, 
                         1, 0, 0, 
                         1, 0, 0, 
-                        -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1 
+
+                        -1, 0, 0,
+                        -1, 0, 0, 
+                        -1, 0, 0, 
+                        -1, 0, 0, 
+
+                        0, 1, 0, 
+                        0, 1, 0, 
+                        0, 1, 0, 
+                        0, 1, 0, 
+
+                        0, -1, 0, 
+                        0, -1, 0, 
+                        0, -1, 0,
+                        0, -1, 0, 
+
+                        0, 0, 1, 
+                        0, 0, 1, 
+                        0, 0, 1, 
+                        0, 0, 1, 
+
+                        0, 0, -1, 
+                        0, 0, -1, 
+                        0, 0, -1, 
+                        0, 0, -1 
                   ]
             })
+            
+            setInterval( ()=>{s.xAngle += 0.0001; console.log( s.xAngle )}, 100 )
       } 
 }
 

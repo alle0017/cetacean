@@ -78,7 +78,6 @@ export class ElementModel {
                         transformation: this.transformation,
                   }
             }])
-            console.log(this.transformation);
       }
 
       get yAngle(){ return this.angles[1] }
@@ -91,7 +90,7 @@ export class ElementModel {
                   binding: 0,
                   group: 0,
                   data: {
-                        transformation: this.transformation,
+                        transformation: Mat.invert( this.transformation, 4 ),
                   }
             }])
       }

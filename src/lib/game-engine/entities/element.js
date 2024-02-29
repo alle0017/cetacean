@@ -12,8 +12,8 @@ class Element extends ElementModel {
         }
         Element.game.renderer.create({
             id: this.id,
-            fragment: std.lightFragment,
-            vertex: std.lightVertex,
+            fragment: std.depthFragment,
+            vertex: std.depthVertex,
             verticesAttribute: "position",
             attributes: {
                 position: {
