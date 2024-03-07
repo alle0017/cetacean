@@ -17,6 +17,13 @@ const getDeviceOffset = async () => {
     };
 };
 let Renderer = Renderer_1 = class Renderer extends WorkerMaster {
+    constructor() {
+        super(...arguments);
+        /**
+        * it is used to sort entities, based on z index
+         */
+        this.entities = {};
+    }
     addPaddingKey(struct, deltaSize) {
         const padding = [];
         let key = 0;
@@ -126,6 +133,17 @@ let Renderer = Renderer_1 = class Renderer extends WorkerMaster {
             sizesForStruct,
         };
     }
+    getMinZ(vertices, stride) {
+        let minZ = vertices[3];
+        if (stride < 3) {
+            return 0;
+        }
+        for (let i = 0; i < vertices.length; i += stride) {
+            if (minZ > vertices[i + 3])
+                minZ = vertices[i + 3];
+        }
+        return minZ;
+    }
     create(opt) {
         const { vertexEntry, fragmentEntry } = this.getEntry(opt.fragment, opt.vertex);
         let verticesCount = 0;
@@ -135,13 +153,26 @@ let Renderer = Renderer_1 = class Renderer extends WorkerMaster {
         }
         if (opt.attributes[opt.verticesAttribute]) {
             verticesCount = opt.attributes[opt.verticesAttribute].data.length / types[opt.attributes[opt.verticesAttribute].type].components;
+            this.entities[opt.id] = {
+                z: this.getMinZ(opt.attributes[opt.verticesAttribute].data, types[opt.attributes[opt.verticesAttribute].type].components)
+            };
         }
         else {
-            verticesCount = Object.values(opt.attributes)[0].data.length / types[opt.attributes[opt.verticesAttribute].type].components;
+            const vertices = Object.values(opt.attributes)[0];
+            verticesCount = vertices.data.length / types[vertices.type].components;
+            this.entities[opt.id] = {
+                z: this.getMinZ(vertices.data, types[vertices.type].components)
+            };
         }
         this.sendNewEntityToThread(Object.assign(Object.assign({}, opt), { vertexEntry,
             fragmentEntry,
             verticesCount, uniforms: this.flatUniforms(opt.uniforms) }));
+        this.sortEntities([]);
+    }
+    update(id, uniforms, z) {
+        this.updateUniforms(id, uniforms, z);
+    }
+    updateZIndex(id, z) {
     }
     changeRoot(newRoot) {
         this.root = newRoot;

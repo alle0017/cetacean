@@ -18,6 +18,13 @@ export default class Renderer extends WorkerMaster {
 
       static minUniformOffset: number = 256;
 
+      /**
+      * it is used to sort entities, based on z index
+       */
+      private entities: Record<string,{
+            z: number
+      }> = {};
+
       private addPaddingKey( struct: Record<string,UniformDataDescriptor>, deltaSize: number ) {
             
             const padding: number[] = [];
@@ -151,20 +158,48 @@ export default class Renderer extends WorkerMaster {
                   sizesForStruct,
             }
       }
-
+      private getMinZ( vertices: number[], stride: number ){
+            let minZ = vertices[3];
+            if( stride < 3 ){
+                  return 0;
+            }
+            for( let i = 0; i < vertices.length; i+= stride ){
+                  if( minZ > vertices[ i + 3 ] )
+                        minZ = vertices[ i + 3 ] 
+            }
+            return minZ;
+      }
       create( opt: ShaderDescriptor ){
             const { vertexEntry, fragmentEntry } = this.getEntry( opt.fragment, opt.vertex );
+
             let verticesCount = 0;
 
             if( !vertexEntry || !fragmentEntry ){
                   console.error( `no entry point found, the object ${opt.id} is automatically discarded` );
                   return;
             }
-
+            
             if( opt.attributes[opt.verticesAttribute] ){
+
                   verticesCount = opt.attributes[opt.verticesAttribute].data.length/types[opt.attributes[opt.verticesAttribute].type].components;
+                  
+                  this.entities[opt.id] = {
+                        z: this.getMinZ( 
+                              opt.attributes[opt.verticesAttribute].data,
+                              types[opt.attributes[opt.verticesAttribute].type].components
+                        )
+                  }
             }else{
-                  verticesCount = Object.values( opt.attributes )[0].data.length/types[opt.attributes[opt.verticesAttribute].type].components;
+                  const vertices = Object.values( opt.attributes )[0];
+
+                  verticesCount = vertices.data.length/types[vertices.type].components;
+
+                  this.entities[opt.id] = {
+                        z: this.getMinZ( 
+                              vertices.data,
+                              types[vertices.type].components
+                        )
+                  }
             }
 
             this.sendNewEntityToThread({
@@ -174,8 +209,15 @@ export default class Renderer extends WorkerMaster {
                   verticesCount,
                   uniforms: this.flatUniforms(opt.uniforms),
             });
+            this.sortEntities([]);
       }
 
+      update( id: string, uniforms: { binding: number, group: number, data: Record<string,number[]> }[], z?: number ){
+            this.updateUniforms( id, uniforms, z );
+      }
+      updateZIndex( id: string, z: number ){
+            
+      }
       changeRoot( newRoot: HTMLElement ){
             this.root = newRoot;
             this.cvs.remove();

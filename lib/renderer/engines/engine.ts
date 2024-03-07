@@ -45,6 +45,7 @@ export default abstract class Engine {
             }
             return indices;
       }
+      
       abstract  draw( objects: Drawable[] ): void;
       abstract create( opt: ShaderMessage ): Drawable;
       abstract write( buffer: GPUBuffer, offset: number, data: number[], type: GPUType ): void;

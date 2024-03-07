@@ -10,4 +10,7 @@ export class Loader {
         });
         return promise;
     }
+    async text(path) {
+        return await (await fetch(path)).text();
+    }
 }

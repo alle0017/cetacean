@@ -47,6 +47,12 @@ class Worker {
         Thread.listen(Messages.LOAD_SAVED, (e) => {
             Worker.renderer.loadSavedEntity(e.id);
         });
+        /**
+        * listen for sorting of entities
+        */
+        Thread.listen(Messages.LOAD_SAVED, (e) => {
+            Worker.renderer.sortEntityList(e.sorted);
+        });
     }
 }
 Worker.renderer = new RendererWorker();

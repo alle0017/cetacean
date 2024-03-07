@@ -15,6 +15,7 @@ export default class RendererWorker {
     constructor() {
         this.entities = {};
         this.saved = {};
+        this.sorted = [];
     }
     save(id) {
         if (!this.entities[id])
@@ -41,16 +42,24 @@ export default class RendererWorker {
     remove() {
         this.entities = {};
     }
-    update(id, uniforms) {
+    update(id, uniforms, z) {
         if (!this.entities[id]) {
             Thread.error('No entities found with id ' + id);
             return;
         }
+        if (z) {
+        }
         for (let i = 0; i < uniforms.length; i++) {
             const entries = Object.entries(uniforms[i].data);
             for (let j = 0; j < entries.length; j++) {
-                RendererWorker.engine.write(this.entities[id].uBuffer, this.entities[id].uniformMap[uniforms[i].group][uniforms[i].binding][entries[j][0]], entries[j][1], this.entities[id].uniforms[uniforms[i].group][uniforms[i].binding][entries[j][0]].type);
+                RendererWorker.engine.write(this.entities[id].uBuffer, this.entities[id].uniformMap[uniforms[i].group][uniforms[i].binding][entries[j][0]].offset, entries[j][1], this.entities[id].uniformMap[uniforms[i].group][uniforms[i].binding][entries[j][0]].type);
             }
+        }
+    }
+    sortEntityList(names) {
+        this.sorted = [];
+        for (let i = 0; i < names.length; i++) {
+            this.sorted[i] = this.entities[names[i]];
         }
     }
 }

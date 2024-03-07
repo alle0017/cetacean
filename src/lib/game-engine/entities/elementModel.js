@@ -42,7 +42,7 @@ class ElementModel {
                 group: 0,
                 data: {
                     transformation: this.transformation,
-                }
+                },
             }]);
     }
     get xAngle() { return this.angles[0]; }

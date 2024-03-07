@@ -106,6 +106,7 @@ export const fragment: string =  /*wgsl*/`
 
       struct FragmentUniforms {
             light_direction: vec3f,
+            animation_vec: vec2f,
       }
       @group(0) @binding(1) var<uniform> fragment_uniforms: FragmentUniforms;
 
@@ -114,7 +115,7 @@ export const fragment: string =  /*wgsl*/`
 
       @fragment
       fn fragment_shader( v: Varyings ) -> @location(0) vec4f {
-            var color = textureSample(texture, tex_sampler, v.tex_coords);
+            var color = textureSample(texture, tex_sampler, v.tex_coords + fragment_uniforms.animation_vec );
             return vec4f(color.rgb * dot( 
                         normalize( v.normal ), 
                         fragment_uniforms.light_direction.xyz
@@ -122,27 +123,4 @@ export const fragment: string =  /*wgsl*/`
                   color.a 
             );
       }
-`
-
-export type animationFragment = /*wgsl */`
-
-struct FragmentUniforms {
-      light_direction: vec3f,
-      animation_vec: vec2f,
-}
-@group(0) @binding(1) var<uniform> fragment_uniforms: FragmentUniforms;
-
-@group(1) @binding(0) var texture: texture_2d<f32>;
-@group(1) @binding(1) var tex_sampler: sampler;
-
-@fragment
-fn fragment_shader( v: Varyings ) -> @location(0) vec4f {
-      var color = textureSample(texture, tex_sampler, v.tex_coords);
-      return vec4f(color.rgb * dot( 
-                  normalize( v.normal ), 
-                  fragment_uniforms.light_direction.xyz
-                  ), 
-            color.a 
-      );
-}
 `

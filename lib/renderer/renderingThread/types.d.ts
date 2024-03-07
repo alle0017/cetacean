@@ -77,6 +77,7 @@ export type ShaderMessage = {
       fragmentEntry: string,
       topology?: GPUPrimitiveTopology,
       index?: number[],
+      //minZ: number,
 }
 
 export type TextureOptions = {
@@ -115,6 +116,8 @@ export type BufferOptions = {
 export type Drawable = {
       draw: (any)=>void,
       uBuffer: GPUBuffer,
-      uniformMap: Record<string, number>[][],
-      uniforms: UniformData[][],
+      uniformMap: Record<string, {
+            offset: number,
+            type: GPUType,
+      }>[][],
 }

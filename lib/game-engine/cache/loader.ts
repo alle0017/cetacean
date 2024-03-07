@@ -15,4 +15,7 @@ export class Loader {
             })
             return promise;
       }
+      async text( path: string ): Promise<string> {
+            return await (await fetch( path )).text();
+      }
 }

@@ -24,7 +24,13 @@ export default class WorkerMaster {
       protected sendNewEntityToThread( opt: ShaderMessage ){
             Thread.post( Messages.NEW_ENTITY, opt, this._tid );
       }
-      
+      protected updateUniforms( id: string, uniforms: { binding: number, group: number, data: Record<string,number[]> }[], z?: number ){
+            Thread.post( Messages.UPDATE_UNIFORMS, {
+                  id,
+                  uniforms,
+                  z,
+            }, this._tid );
+      }
       render(){
             Thread.post( Messages.START, null, this._tid );
       }
@@ -41,18 +47,15 @@ export default class WorkerMaster {
                   id
             }, this._tid );
       }
-      update( id: string, uniforms: { binding: number, group: number, data: Record<string,number[]> }[] ){
-            Thread.post( Messages.UPDATE_UNIFORMS, {
-                  id: id,
-                  uniforms,
-            }, this._tid );
-      }
       /**
        * remove all entities actually rendered 
        * they need to be re-created to be rendered again
        */
       removeAll(){
             Thread.post( Messages.DELETE_ALL, null, this._tid );
+      }
+      sortEntities( entities: string[] ){
+            Thread.post( Messages.SORT, { sorted: entities }, this._tid );
       }
 }
 

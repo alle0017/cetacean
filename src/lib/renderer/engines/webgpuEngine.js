@@ -75,7 +75,10 @@ export default class WebGPUEngine extends Engine {
         for (let i = 0; i < entries.length; i++) {
             console.log(entries[i], offset);
             WebGPUEngine.gpu.writeBuffer(buffer, entries[i][1].data, entries[i][1].type, offset);
-            map[entries[i][0]] = offset;
+            map[entries[i][0]] = {
+                offset,
+                type: entries[i][1].type
+            };
             offset += entries[i][1].data.length * types[entries[i][1].type].constructor.BYTES_PER_ELEMENT;
         }
         return {
@@ -178,7 +181,6 @@ export default class WebGPUEngine extends Engine {
             draw,
             uBuffer,
             uniformMap,
-            uniforms: opt.uniforms.entries,
         };
     }
     draw(objects) {

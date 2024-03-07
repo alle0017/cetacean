@@ -14,78 +14,88 @@ class Sprite3D extends ElementModel {
                 }
             }
         }
-        return {
-            max,
-            min,
-        };
+        this.max = max;
+        this.min = min;
     }
-    constructor(texture, shape) {
+    createSprite(shape, image) {
+        Sprite3D.game.renderer.create({
+            id: this.id,
+            fragment: std.textureFragment,
+            vertex: std.textureVertex,
+            verticesAttribute: "position",
+            attributes: {
+                position: {
+                    data: shape.vertices,
+                    type: 'f32x4',
+                    location: 0,
+                },
+                normal: {
+                    data: shape.normals,
+                    type: 'f32x3',
+                    location: 1,
+                },
+            },
+            uniforms: [{
+                    group: 0,
+                    binding: 0,
+                    data: {
+                        transformation: {
+                            data: this.transformation,
+                            type: 'f32x4'
+                        },
+                        perspective: {
+                            data: Sprite3D.game.view.perspectiveMatrix,
+                            type: 'f32x4'
+                        },
+                        coords_min: {
+                            data: this.min,
+                            type: 'f32x2',
+                        },
+                        coords_max: {
+                            data: this.max,
+                            type: 'f32x2',
+                        },
+                    }
+                }, {
+                    group: 0,
+                    binding: 1,
+                    data: {
+                        light_direction: {
+                            data: this.lightDirection,
+                            type: 'f32x3'
+                        },
+                        animation_vec: {
+                            data: [0, 0],
+                            type: 'f32x2',
+                        }
+                    }
+                }, {
+                    group: 1,
+                    binding: 0,
+                    data: image,
+                }, {
+                    group: 1,
+                    binding: 1,
+                    data: 'sampler',
+                }],
+            index: shape.indices
+        });
+        this.z -= 500;
+        this.xAngle = 20;
+    }
+    constructor(opt) {
         super(`${Sprite3D.elementID}${Sprite3D.lastUsedKey++}`);
         this.lightDirection = [1, 1, 1];
-        const { min, max } = this.findMinMaxCoords(shape.vertices);
-        if (texture instanceof URL)
-            texture = texture.toString();
-        Sprite3D.game.loader.image(texture).then(((image) => {
-            Sprite3D.game.renderer.create({
-                id: this.id,
-                fragment: std.textureFragment,
-                vertex: std.textureVertex,
-                verticesAttribute: "position",
-                attributes: {
-                    position: {
-                        data: shape.vertices,
-                        type: 'f32x4',
-                        location: 0,
-                    },
-                    normal: {
-                        data: shape.normals,
-                        type: 'f32x3',
-                        location: 1,
-                    },
-                },
-                uniforms: [{
-                        group: 0,
-                        binding: 0,
-                        data: {
-                            transformation: {
-                                data: this.transformation,
-                                type: 'f32x4'
-                            },
-                            perspective: {
-                                data: Sprite3D.game.view.perspectiveMatrix,
-                                type: 'f32x4'
-                            },
-                            coords_min: {
-                                data: min,
-                                type: 'f32x2',
-                            },
-                            coords_max: {
-                                data: max,
-                                type: 'f32x2',
-                            },
-                        }
-                    }, {
-                        group: 0,
-                        binding: 1,
-                        data: {
-                            light_direction: {
-                                data: this.lightDirection,
-                                type: 'f32x3'
-                            },
-                        }
-                    }, {
-                        group: 1,
-                        binding: 0,
-                        data: image,
-                    }, {
-                        group: 1,
-                        binding: 1,
-                        data: 'sampler',
-                    }],
-                index: shape.indices
-            });
-            this.z -= 500;
-            this.xAngle = 20;
+        this.animationVec = [0, 0];
+        this.findMinMaxCoords(opt.shape.vertices);
+        if (opt.image instanceof URL)
+            opt.image = opt.image.toString();
+        else if (opt.image instanceof ImageBitmap) {
+            this.createSprite(opt.shape, opt.image);
+            return;
+        }
+        Sprite3D.game.loader.image(opt.image).then(((image) => {
+            this.createSprite(opt.shape, image);
         }).bind(this));
     }
 }

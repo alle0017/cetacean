@@ -7,6 +7,7 @@ export const Messages = Object.freeze({
       DELETE_ALL: 'de_a#L',
       SAVE: 's4vE!',
       LOAD_SAVED: '-ld_sD7',
+      SORT: '--$0r7',
 })
 export const types = Object.freeze({
       i32: {

@@ -105,6 +105,7 @@ export const fragment = /*wgsl*/ `
 
       struct FragmentUniforms {
             light_direction: vec3f,
+            animation_vec: vec2f,
       }
       @group(0) @binding(1) var<uniform> fragment_uniforms: FragmentUniforms;
 
@@ -113,7 +114,7 @@ export const fragment = /*wgsl*/ `
 
       @fragment
       fn fragment_shader( v: Varyings ) -> @location(0) vec4f {
-            var color = textureSample(texture, tex_sampler, v.tex_coords);
+            var color = textureSample(texture, tex_sampler, v.tex_coords + fragment_uniforms.animation_vec );
             return vec4f(color.rgb * dot( 
                         normalize( v.normal ), 
                         fragment_uniforms.light_direction.xyz

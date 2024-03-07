@@ -16,6 +16,13 @@ class WorkerMaster {
     sendNewEntityToThread(opt) {
         Thread.post(Messages.NEW_ENTITY, opt, this._tid);
     }
+    updateUniforms(id, uniforms, z) {
+        Thread.post(Messages.UPDATE_UNIFORMS, {
+            id,
+            uniforms,
+            z,
+        }, this._tid);
+    }
     render() {
         Thread.post(Messages.START, null, this._tid);
     }
@@ -32,18 +39,15 @@ class WorkerMaster {
             id
         }, this._tid);
     }
-    update(id, uniforms) {
-        Thread.post(Messages.UPDATE_UNIFORMS, {
-            id: id,
-            uniforms,
-        }, this._tid);
-    }
     /**
      * remove all entities actually rendered
      * they need to be re-created to be rendered again
      */
     removeAll() {
         Thread.post(Messages.DELETE_ALL, null, this._tid);
+    }
+    sortEntities(entities) {
+        Thread.post(Messages.SORT, { sorted: entities }, this._tid);
     }
 }
 WorkerMaster._id = 0;

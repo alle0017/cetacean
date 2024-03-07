@@ -51,3 +51,15 @@ export type ShapeDescriptor = {
       normals: number[],
       indices?: number[],
 }
+
+export type Sprite2DOpt = {
+      frames?: number,
+      costumes?: number,
+      image: URL | string | ImageBitmap,
+}
+export type Sprite3DOpt = {
+      frames?: number,
+      costumes?: number,
+      image: URL | string | ImageBitmap,
+      shape: ShapeDescriptor,
+}

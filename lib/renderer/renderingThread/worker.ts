@@ -23,7 +23,7 @@ class Worker {
             */
             Thread.listen( Messages.UPDATE_UNIFORMS, ( e: { 
                   id: string, 
-                  uniforms: { binding: number, group: number, data: Record<string,number[]> }[]
+                  uniforms: { binding: number, group: number, data: Record<string,number[]> }[],
             })=>{
                   Worker.renderer.update( e.id, e.uniforms );
             })
@@ -60,6 +60,12 @@ class Worker {
             Thread.listen( Messages.LOAD_SAVED, ( e: { id: string | string[] } )=>{
                   
                   Worker.renderer.loadSavedEntity( e.id );
+            })    
+            /**
+            * listen for sorting of entities
+            */
+            Thread.listen( Messages.LOAD_SAVED, ( e: { sorted: string[] } )=>{
+                  Worker.renderer.sortEntityList( e.sorted );
             })    
       }
 }

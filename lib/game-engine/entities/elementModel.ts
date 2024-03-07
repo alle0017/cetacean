@@ -57,7 +57,7 @@ export class ElementModel {
                   group: 0,
                   data: {
                         transformation: this.transformation,
-                  }
+                  },
             }])
       }
 
@@ -109,7 +109,7 @@ export class ElementModel {
                   }
             }])
       }
-      constructor( id: string ){
+      constructor( id: string, ){
             this.id = id;
       }
       emitEvent( signal: string, data: any ): void {

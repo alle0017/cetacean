@@ -85,7 +85,10 @@ export default class WebGPUEngine extends Engine {
             return texture;
       }
       private writeUniformBuffer( buffer: GPUBuffer, data: Record<string, UniformDataDescriptor>, offset: number ){
-            const map: Record<string, number> = {};
+            const map: Record<string, {
+                  offset: number,
+                  type: GPUType,
+            }> = {};
             const entries = Object.entries( data );
             
             for( let i = 0; i < entries.length; i++ ){
@@ -97,7 +100,10 @@ export default class WebGPUEngine extends Engine {
                         entries[i][1].type,
                         offset
                   )
-                  map[entries[i][0]] = offset;
+                  map[entries[i][0]] = {
+                        offset, 
+                        type: entries[i][1].type
+                  };
                   offset += entries[i][1].data.length*types[entries[i][1].type].constructor.BYTES_PER_ELEMENT;
             }
             return {
@@ -111,7 +117,10 @@ export default class WebGPUEngine extends Engine {
                   type: "i32",
                   length: uniforms.size,
             });
-            const map: Record<string,number>[][] = [];
+            const map: Record<string,{
+                  offset: number,
+                  type: GPUType,
+            }>[][] = [];
             const bindGroups: GPUBindGroup[] = [];
             let offset = 0;
             for( let i = 0; i < uniforms.entries.length; i++ ){
@@ -218,7 +227,6 @@ export default class WebGPUEngine extends Engine {
                   draw,
                   uBuffer,
                   uniformMap,
-                  uniforms: opt.uniforms.entries,
             }
       }
       draw( objects: Drawable[] ){
