@@ -2,7 +2,7 @@ import { ElementModel } from "./elementModel.js";
 import { std } from "../../renderer/index.js";
 class Element extends ElementModel {
     constructor(shape, color) {
-        super(`${Element.elementID}${Element.lastUsedKey++}`);
+        super(`${Element.elementID}${Element.lastUsedKey++}`, shape.vertices);
         this.lightDirection = [1, 1, 1];
         if (!(color instanceof Array)) {
             let colors = [];

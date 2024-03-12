@@ -5,7 +5,7 @@ import * as Matrix from "./matrices.js";
 /**
  * Represents a camera in a 3D scene.
  */
-export default class Camera {
+export class Camera {
 
       /**
        * Transformation matrix representing the camera's view.
@@ -26,6 +26,8 @@ export default class Camera {
        * Camera's position in 3D space.
        */
       private _cameraPosition: Point3D = { x: 0, y: 0, z: 0 };
+      
+      private updateCallbacks: Record<string,()=>void> = {};
   
       /**
        * Set the rotation angle of the camera.
@@ -138,6 +140,16 @@ export default class Camera {
                   Matrix.translate(this._cameraPosition)
             );
             this.matrix = Matrix.invert(camera, 4);
+            const callbacks = Object.values( this.updateCallbacks );
+            for( let i = 0; i < callbacks.length; i++ ) {
+                  callbacks[i]();
+            }
+      }
+      onUpdate( id: string, callback: ()=> void ){
+            this.updateCallbacks[id] = callback;
+      }
+      removeListener( id: string ){
+            delete this.updateCallbacks[id];
       }
 }
   

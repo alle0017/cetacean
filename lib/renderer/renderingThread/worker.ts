@@ -31,7 +31,7 @@ class Worker {
             * listen for new entity creation 
             */
             Thread.listen( Messages.NEW_ENTITY, ( e: ShaderMessage )=>{
-                  Worker.renderer.entities[e.id] = RendererWorker.engine.create( e );
+                  Worker.renderer.create( e );
             });
             /**
             * listen for start rendering
@@ -64,8 +64,8 @@ class Worker {
             /**
             * listen for sorting of entities
             */
-            Thread.listen( Messages.LOAD_SAVED, ( e: { sorted: string[] } )=>{
-                  Worker.renderer.sortEntityList( e.sorted );
+            Thread.listen( Messages.SORT, ( e: { id: string, z: number } )=>{
+                  Worker.renderer.updateZIndex(e)
             })    
       }
 }

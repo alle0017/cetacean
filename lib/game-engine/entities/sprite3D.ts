@@ -104,7 +104,7 @@ export class Sprite3D extends ElementModel {
       }
       constructor( opt: Sprite3DOpt ){
 
-            super(`${Sprite3D.elementID}${Sprite3D.lastUsedKey++}`)
+            super( `${Sprite3D.elementID}${Sprite3D.lastUsedKey++}`, opt.shape.vertices )
 
             this.findMinMaxCoords( opt.shape.vertices );
 

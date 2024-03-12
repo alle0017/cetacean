@@ -77,7 +77,7 @@ export type ShaderMessage = {
       fragmentEntry: string,
       topology?: GPUPrimitiveTopology,
       index?: number[],
-      //minZ: number,
+      minZ: number,
 }
 
 export type TextureOptions = {

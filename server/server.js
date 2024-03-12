@@ -1,21 +1,26 @@
 const express = require('express');
 const path = require('path');
+const puppeteer = require('puppeteer')
+const fs = require('fs');
 const app = express();
-const { exec } = require('child_process');
 
-// Function to open Chrome with a specified URL
-function openURLWithChrome(url) {
-  // Replace 'chrome' with 'google-chrome' if you're on Linux
-  // Replace 'start' with 'open' if you're on macOS
-  exec(`open -a "Google Chrome" ${url}`, (err, stdout, stderr) => {
-    if (err) {
-      console.error('Error opening Chrome:', err);
-      return;
-    }
-    console.log('Chrome opened successfully');
-  });
+
+const newPuppetChrome = async ( url )=>{
+    const browser = await puppeteer.launch({ 
+      headless: false, 
+      devtools: true,
+      args:['--start-maximized' ],
+      defaultViewport: null,
+    });
+    const page = await browser.newPage();
+    await page.goto( url );
+    fs.watch(path.join(__dirname, '../'), {
+      recursive: true,
+    }, ()=>{
+        page.reload()
+    })
+    return browser;
 }
-
 
 // Allow cross-origin requests
 app.use((req, res, next) => {
@@ -29,10 +34,6 @@ app.use((req, res, next) => {
       next();
 });
 app.use(express.static(path.join(__dirname, '../')));
-// Route to serve your webpage
-/*app.get('/', (req, res) => {
-      res.send('Your webpage content here');
-});*/
 
 // Start the server
 const PORT = process.env.PORT || 3000;
@@ -40,5 +41,5 @@ app.listen(PORT, () => {
       console.log(`[server] Server is running on port ${PORT}`);
       console.log("[server] opening web page with chrome...")
       console.log('[server] \x1b[34mhttp://localhost:3000\x1b[0m' );
-      openURLWithChrome("http://localhost:3000")
+      newPuppetChrome("http://localhost:3000")
 });

@@ -54,8 +54,8 @@ export default class WorkerMaster {
       removeAll(){
             Thread.post( Messages.DELETE_ALL, null, this._tid );
       }
-      sortEntities( entities: string[] ){
-            Thread.post( Messages.SORT, { sorted: entities }, this._tid );
+      sortEntities( id: string, z: number ){
+            Thread.post( Messages.SORT, { id, z, }, this._tid );
       }
 }
 

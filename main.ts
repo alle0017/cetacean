@@ -89,4 +89,4 @@ game.scene( MyScene, 'my-scene' );
 
 game.changeScene('my-scene');
 
-new SharedArrayBuffer(100)
+new SharedArrayBuffer(1000000)

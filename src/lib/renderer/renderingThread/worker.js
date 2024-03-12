@@ -21,7 +21,7 @@ class Worker {
         * listen for new entity creation
         */
         Thread.listen(Messages.NEW_ENTITY, (e) => {
-            Worker.renderer.entities[e.id] = RendererWorker.engine.create(e);
+            Worker.renderer.create(e);
         });
         /**
         * listen for start rendering
@@ -50,8 +50,8 @@ class Worker {
         /**
         * listen for sorting of entities
         */
-        Thread.listen(Messages.LOAD_SAVED, (e) => {
-            Worker.renderer.sortEntityList(e.sorted);
+        Thread.listen(Messages.SORT, (e) => {
+            Worker.renderer.updateZIndex(e);
         });
     }
 }

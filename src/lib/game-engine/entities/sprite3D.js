@@ -84,7 +84,7 @@ class Sprite3D extends ElementModel {
         this.xAngle = 20;
     }
     constructor(opt) {
-        super(`${Sprite3D.elementID}${Sprite3D.lastUsedKey++}`);
+        super(`${Sprite3D.elementID}${Sprite3D.lastUsedKey++}`, opt.shape.vertices);
         this.lightDirection = [1, 1, 1];
         this.animationVec = [0, 0];
         this.findMinMaxCoords(opt.shape.vertices);

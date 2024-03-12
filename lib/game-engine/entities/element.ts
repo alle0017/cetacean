@@ -13,7 +13,7 @@ export class Element extends ElementModel {
 
       constructor( shape: ShapeDescriptor, color: number[] | Color ){
 
-            super( `${Element.elementID}${Element.lastUsedKey++}` );
+            super( `${Element.elementID}${Element.lastUsedKey++}`, shape.vertices );
 
             if( !( color instanceof Array ) ){
                   let colors: number[] = [];

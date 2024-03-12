@@ -19,10 +19,7 @@ const getDeviceOffset = async () => {
 let Renderer = Renderer_1 = class Renderer extends WorkerMaster {
     constructor() {
         super(...arguments);
-        /**
-        * it is used to sort entities, based on z index
-         */
-        this.entities = {};
+        this.zIndexMap = {};
     }
     addPaddingKey(struct, deltaSize) {
         const padding = [];
@@ -147,32 +144,34 @@ let Renderer = Renderer_1 = class Renderer extends WorkerMaster {
     create(opt) {
         const { vertexEntry, fragmentEntry } = this.getEntry(opt.fragment, opt.vertex);
         let verticesCount = 0;
+        let minZ;
         if (!vertexEntry || !fragmentEntry) {
             console.error(`no entry point found, the object ${opt.id} is automatically discarded`);
             return;
         }
         if (opt.attributes[opt.verticesAttribute]) {
             verticesCount = opt.attributes[opt.verticesAttribute].data.length / types[opt.attributes[opt.verticesAttribute].type].components;
-            this.entities[opt.id] = {
-                z: this.getMinZ(opt.attributes[opt.verticesAttribute].data, types[opt.attributes[opt.verticesAttribute].type].components)
-            };
+            minZ = this.getMinZ(opt.attributes[opt.verticesAttribute].data, types[opt.attributes[opt.verticesAttribute].type].components);
         }
         else {
             const vertices = Object.values(opt.attributes)[0];
             verticesCount = vertices.data.length / types[vertices.type].components;
-            this.entities[opt.id] = {
-                z: this.getMinZ(vertices.data, types[vertices.type].components)
-            };
+            minZ = this.getMinZ(vertices.data, types[vertices.type].components);
         }
-        this.sendNewEntityToThread(Object.assign(Object.assign({}, opt), { vertexEntry,
+        this.zIndexMap[opt.id] = minZ;
+        this.sendNewEntityToThread(Object.assign(Object.assign({}, opt), { minZ,
+            vertexEntry,
             fragmentEntry,
             verticesCount, uniforms: this.flatUniforms(opt.uniforms) }));
-        this.sortEntities([]);
     }
     update(id, uniforms, z) {
         this.updateUniforms(id, uniforms, z);
     }
     updateZIndex(id, z) {
+        if (this.zIndexMap[id] == z)
+            return;
+        this.zIndexMap[id] = z;
+        this.sortEntities(id, z);
     }
     changeRoot(newRoot) {
         this.root = newRoot;

@@ -3,7 +3,7 @@ import * as Matrix from "./matrices.js";
 /**
  * Represents a camera in a 3D scene.
  */
-export default class Camera {
+export class Camera {
     /**
      * Set the rotation angle of the camera.
      * @param {number} deg - The new rotation angle in degrees.
@@ -111,6 +111,7 @@ export default class Camera {
          * Camera's position in 3D space.
          */
         this._cameraPosition = { x: 0, y: 0, z: 0 };
+        this.updateCallbacks = {};
         this.updateCameraMatrix();
     }
     /**
@@ -119,5 +120,15 @@ export default class Camera {
     updateCameraMatrix() {
         const camera = Matrix.compose(Matrix.rotation(this._cameraAngle, this.rotationAxis), 4, Matrix.translate(this._cameraPosition));
         this.matrix = Matrix.invert(camera, 4);
+        const callbacks = Object.values(this.updateCallbacks);
+        for (let i = 0; i < callbacks.length; i++) {
+            callbacks[i]();
+        }
+    }
+    onUpdate(id, callback) {
+        this.updateCallbacks[id] = callback;
+    }
+    removeListener(id) {
+        delete this.updateCallbacks[id];
     }
 }
